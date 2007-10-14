@@ -1,0 +1,129 @@
+============================================
+License: (BSD License)
+============================================
+
+Copyright (c) 2007, Orion Edwards
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Neither the name of the project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+============================================
+Notes:
+============================================
+
+This is NOT A PRODUCTION QUALITY PIECE OF SOFTWARE.
+It may crash at times. You have been warned.
+
+FindInFiles stores search history information under the following registry key
+
+
+  HKEY_CURRENT_USER\Software\e-addons\FindInFiles
+
+Otherwise FindInFiles will not modify your system at all.
+
+============================================
+Install:
+============================================
+
+* Step 0:
+
+You need the dot net framework v2 to run this. If you don't have it installed, go get it from microsoft.
+This also means the regex search is using the .net regex engine NOT PCRE
+
+* Step 1: 
+
+Copy the FindInFiles.exe anywhere you like on your system.
+I Recommend putting it in your E support path just for consistency's sake.
+
+On vista, I have mine in this path:
+
+C:\Users\Orion\AppData\Roaming\e\Support\bin
+
+on XP, that would be
+
+C:\Documents and Settings\Orion\Application Data\e\Support\bin
+
+* Step 2: 
+
+Launch the E bundle editor. Under text files, create a new command. 
+Call it whatever you like, although I find "find in files" is nice :-)
+
+For this new command, it should be as follows:
+Environment: Windows Native
+Input: Selected Text or Word
+Output: Show as HTML
+Activation: Key Equivalent: Ctrl-Shift-F (or whatever you want)
+Scope Selector: empty
+
+The bundle contents (big text box) should be set as follows:
+
+If you've put the FindInFiles.exe in the recommended, path above, then use the following:
+"%APPDATA%\e\Support\bin\FindInFiles.exe"
+
+Otherwise use the full quoted path to where you placed FindInFiles.exe. It doesn't need any command line arguments.
+
+* Step 3: 
+
+In E, with any file open, hit ctrl-shift-f (or whatever key equivalent you assigned above)
+
+
+============================================
+Usage:
+============================================
+
+In the 'Find What' box, enter any text. 
+  - If you tick 'use Regular Expressions', then you may use .NET compatible regexes here.
+  - If you tick 'Match case', then the search will be case-sensitive (affects regexes also)
+
+In the 'Look In' box, enter the path to the directory to search.
+
+In the 'Look at these file types' box, enter the file extensions to search. 
+  - If you wish to search all files, leave this box blank. *.* won't work
+  - Otherwise, enter them in *.ext form, separated by either commas or semicolons. 
+    - You may use spaces to make it look prettier, but these will be ignored
+
+  - For example
+    *.rb, *.rhtml, *.rjs
+
+In the 'Exclude these directories' box, enter the names of directories to skip.
+
+  - You must enter full directory names - you can't use *xyz* for example.
+  - separate entries with either commas or semicolons.
+  - as directory names may include spaces, you can't use spaces in between the separators
+  - It is a REALLY good idea to put .svn in this box if you are using subversion
+
+  - For example
+    .svn;.CVS;tmp;log
+
+Hit the 'Find All' button or press Enter to begin the search.
+
+Press escape while searching to cancel
+
+
+============================================
+Uninstall:
+============================================
+
+- Remove the FindInFiles.exe from wherever you put it.
+- Remove the Bundle command from E using the bundle editor
+- Remove the following registry key:
+
+  HKEY_CURRENT_USER\Software\e-addons\FindInFiles
