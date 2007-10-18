@@ -97,9 +97,9 @@ namespace FindInFiles
 
 		public override string ToString()
 		{
-			StringBuilder str = new StringBuilder(Matches.Count * 40); //guesstimate 40 characters per line for buffer size
+			StringBuilder str = new StringBuilder(Matches.Count * 60); //guesstimate 60 characters per line for buffer size
 
-			str.Append( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; color:#000000; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
+			str.Append( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
 			str.Append( "<pre>" );
 
 			foreach (FindResult match in Matches)
