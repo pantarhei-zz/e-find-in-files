@@ -10,9 +10,9 @@ namespace FindInFiles
 	/// <summary>
 	/// Options for finding things
 	/// </summary>
-    class FindOptions
-    {
-        public readonly string SearchPath;
+	class FindOptions
+	{
+		public readonly string SearchPath;
 		public readonly string SearchPattern;
 		public readonly bool MatchCase;
 		public readonly bool UseRegex;
@@ -38,40 +38,40 @@ namespace FindInFiles
 			: this( searchPath, searchPattern, matchCase, useRegex, ParseSearchExtensions(searchExtensions), ParseDirectoryExcludes( directoryExcludes ) )
 		{ }
 
-        public static string[] ParseSearchExtensions(string e)
-        {
-            return e.Replace("*", "").Replace(" ", "").ToLower().Split(new char[] { ',', ';' });
-        }
+		public static string[] ParseSearchExtensions(string e)
+		{
+			return e.Replace("*", "").Replace(" ", "").ToLower().Split(new char[] { ',', ';' });
+		}
 
-        public static string[] ParseDirectoryExcludes(string e)
-        {
-            return e.ToLower().Split(new char[] { ',', ';' });
-        }
-    }
+		public static string[] ParseDirectoryExcludes(string e)
+		{
+			return e.ToLower().Split(new char[] { ',', ';' });
+		}
+	}
 
 	/// <summary>
 	/// Represents a single matched result
 	/// </summary>
-    class FindResult
-    {
-        public FindResult(string file, int lineNumber, string lineText)
-        {
-            File = file;
-            LineNumber = lineNumber;
-            LineText = lineText;
-        }
+	class FindResult
+	{
+		public FindResult(string file, int lineNumber, string lineText)
+		{
+			File = file;
+			LineNumber = lineNumber;
+			LineText = lineText;
+		}
 
-        public readonly string File;
-        public readonly int LineNumber;
-        public readonly string LineText;
-    }
+		public readonly string File;
+		public readonly int LineNumber;
+		public readonly string LineText;
+	}
 
 	/// <summary>
 	/// The collection and summary of results
 	/// </summary>
-    class FindResults
-    {
-        public readonly TimeSpan TimeTaken;
+	class FindResults
+	{
+		public readonly TimeSpan TimeTaken;
 		public readonly int NumFilesSearched;
 		public readonly int NumFilesMatched;
 		public readonly int NumLinesMatched;
@@ -95,34 +95,34 @@ namespace FindInFiles
 				Replace( "'", "&#39;" );
 		}
 
-        public override string ToString()
-        {
-            StringBuilder str = new StringBuilder(Matches.Count * 40); //guesstimate 40 characters per line for buffer size
+		public override string ToString()
+		{
+			StringBuilder str = new StringBuilder(Matches.Count * 40); //guesstimate 40 characters per line for buffer size
 
 			str.Append( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; color:#000000; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
 			str.Append( "<pre>" );
 
-            foreach (FindResult match in Matches)
-            {
-                str.AppendFormat(
-                    "<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{0}({1}): {2}</a>\n",
-                    match.File, match.LineNumber, EscapeHtml(match.LineText) );
-            }
+			foreach (FindResult match in Matches)
+			{
+				str.AppendFormat(
+					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{0}({1}): {2}</a>\n",
+					match.File, match.LineNumber, EscapeHtml(match.LineText) );
+			}
 
 			str.AppendLine( "--------------------------------------------------------------------------------" );
-            str.AppendFormat("Matching Lines: {0}\t Matching Files: {1}\t Total files searched: {2} in {3}s\n",
-                NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds);
+			str.AppendFormat("Matching Lines: {0}\t Matching Files: {1}\t Total files searched: {2} in {3}s\n",
+				NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds);
 
 			str.AppendLine( "</pre>" );
-            return str.ToString();
-        }
-    }
+			return str.ToString();
+		}
+	}
 
 	/// <summary>
 	/// Actually does the finding
 	/// </summary>
-    class Finder
-    {
+	class Finder
+	{
 		public readonly FindOptions Options;
 		public event ScanningFileCallback ScanningFile;
 			
@@ -140,8 +140,8 @@ namespace FindInFiles
 				ScanningFile( text );
 		}
 
-        private static List<string> MakeFileList( string searchPath, string[] searchExtensions, string[] directoryExcludes )
-        {
+		private static List<string> MakeFileList( string searchPath, string[] searchExtensions, string[] directoryExcludes )
+		{
 			Debug.Assert( searchPath != null );
 			Debug.Assert( searchExtensions != null );
 			Debug.Assert( directoryExcludes != null );
@@ -152,7 +152,7 @@ namespace FindInFiles
 			if( !Directory.Exists( searchPath ) )
 				throw new ArgumentException( "Directory does not exist" );
 
-            List<string> ret = new List<string>();
+			List<string> ret = new List<string>();
 
 			// check for *.* (*'s have been stripped out so it will just be a .)
 			if( Array.Exists( searchExtensions, delegate( string ext ) { return ext == "."; } ) )
@@ -171,14 +171,14 @@ namespace FindInFiles
 			}
 
 			foreach( string dir in Directory.GetDirectories( searchPath ) )
-            {
+			{
 				if( directoryExcludes.Length < 1 ||
 					(!Array.Exists( directoryExcludes, delegate( string dx ) { return Path.GetFileName( dir ).ToLower() == dx; } )) )
 					ret.AddRange( MakeFileList( dir, searchExtensions, directoryExcludes ) );
-            }
+			}
 
-            return ret;
-        }
+			return ret;
+		}
 
 		private void PrepareSearch( out Regex searchRegex, out string searchString )
 		{
@@ -202,8 +202,8 @@ namespace FindInFiles
 			}
 		}
 
-        private FindResults FindInFiles( ICollection<string> files )
-        {
+		private FindResults FindInFiles( ICollection<string> files )
+		{
 			DateTime startedAt = DateTime.Now;
 			int numFilesMatched = 0;
 			int numLinesMatched = 0;
@@ -212,30 +212,30 @@ namespace FindInFiles
 			string searchPattern;
 			PrepareSearch( out searchRegex, out searchPattern );
 
-            List<FindResult> matches = new List<FindResult>();
-            foreach( string file in files )
-            {
+			List<FindResult> matches = new List<FindResult>();
+			foreach( string file in files )
+			{
 				FireScanningFile( file );
-                bool fileMatches = false;
+				bool fileMatches = false;
 
-                string[] lines = File.ReadAllLines(file); // make this use blocks
+				string[] lines = File.ReadAllLines(file); // make this use blocks
 				// Scan each line and add a match if it matched
-                for( int lineNumber = 0; lineNumber < lines.Length; ++lineNumber )
-                {
-                    string lineText = Options.MatchCase ? lines[lineNumber] : lines[lineNumber].ToLower();
+				for( int lineNumber = 0; lineNumber < lines.Length; ++lineNumber )
+				{
+					string lineText = Options.MatchCase ? lines[lineNumber] : lines[lineNumber].ToLower();
 
 					if( (searchRegex != null && searchRegex.IsMatch(lineText)) ||
 						(searchPattern != null && lineText.IndexOf( searchPattern ) > -1) )
-                    {
+					{
 						++numLinesMatched;
-                        fileMatches = true;
+						fileMatches = true;
 						matches.Add( new FindResult( file, lineNumber + 1, lines[lineNumber] ) );
-                    }
-                }
+					}
+				}
 
-                if( fileMatches )
-                    ++numFilesMatched;
-            }
+				if( fileMatches )
+					++numFilesMatched;
+			}
 
 			return new FindResults(
 				DateTime.Now - startedAt,
@@ -243,7 +243,7 @@ namespace FindInFiles
 				numFilesMatched,
 				numLinesMatched,
 				matches );
-        }
+		}
 
 		public FindResults Find()
 		{
@@ -253,5 +253,5 @@ namespace FindInFiles
 
 			return FindInFiles( filesToSearch );
 		}
-    }
+	}
 }
