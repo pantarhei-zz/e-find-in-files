@@ -35,7 +35,8 @@ It may crash at times. You have been warned.
 FindInFiles stores search history information under the following registry key
 
 
-  HKEY_CURRENT_USER\Software\e-addons\FindInFiles
+  HKEY_CURRENT_USER\Software\e-addons\FindInFiles
+
 
 Otherwise FindInFiles will not modify your system at all.
 
@@ -92,12 +93,15 @@ Usage:
 In the 'Find What' box, enter any text. 
   - If you tick 'use Regular Expressions', then you may use .NET compatible regexes here.
   - If you tick 'Match case', then the search will be case-sensitive (affects regexes also)
+  - Press the 'W' button to insert the current word that the cursor is positioned over in the editor (uses TM_CURRENT_WORD)
 
 In the 'Look In' box, enter the path to the directory to search.
+  - Press the 'C' button to insert the current directory of the file you are editing (uses TM_DIRECTORY)
+  - Press the 'P' button to insert the project directory (uses TM_PROJECT_DIRECTORY)
+  - Press the '...' button to browse for a directory
 
 In the 'Look at these file types' box, enter the file extensions to search. 
-  - If you wish to search all files, leave this box blank. *.* won't work
-  - Otherwise, enter them in *.ext form, separated by either commas or semicolons. 
+  - Enter file types in *.ext form, separated by either commas or semicolons. 
     - You may use spaces to make it look prettier, but these will be ignored
 
   - For example
@@ -108,7 +112,7 @@ In the 'Exclude these directories' box, enter the names of directories to skip.
   - You must enter full directory names - you can't use *xyz* for example.
   - separate entries with either commas or semicolons.
   - as directory names may include spaces, you can't use spaces in between the separators
-  - It is a REALLY good idea to put .svn in this box if you are using subversion
+  - It is a REALLY good idea to put .svn in this box if you are using subversion
 
   - For example
     .svn;.CVS;tmp;log

@@ -4,8 +4,6 @@ using System.Windows.Forms;
 
 namespace FindInFiles
 {
-    
-
     static class Program
     {
         /// <summary>
@@ -18,7 +16,5 @@ namespace FindInFiles
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FindForm());
         }
-
-        
     }
 }
