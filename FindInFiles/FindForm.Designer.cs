@@ -28,6 +28,8 @@ namespace FindInFiles
         /// </summary>
         private void InitializeComponent()
         {
+			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.ToolTip toolTip;
 			this.buttonFind = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
@@ -45,6 +47,7 @@ namespace FindInFiles
 			this.buttonUseProjectDir = new System.Windows.Forms.Button();
 			this.buttonUseCurrentDirectory = new System.Windows.Forms.Button();
 			this.buttonUseCurrentWord = new System.Windows.Forms.Button();
+			toolTip = new System.Windows.Forms.ToolTip( this.components );
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -53,7 +56,7 @@ namespace FindInFiles
 			this.buttonFind.Location = new System.Drawing.Point( 257, 260 );
 			this.buttonFind.Name = "buttonFind";
 			this.buttonFind.Size = new System.Drawing.Size( 190, 23 );
-			this.buttonFind.TabIndex = 0;
+			this.buttonFind.TabIndex = 6;
 			this.buttonFind.Text = "Find All";
 			this.buttonFind.UseVisualStyleBackColor = true;
 			this.buttonFind.Click += new System.EventHandler( this.OnButtonFind_Click );
@@ -64,7 +67,7 @@ namespace FindInFiles
 			this.label1.Location = new System.Drawing.Point( 12, 9 );
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size( 56, 13 );
-			this.label1.TabIndex = 1;
+			this.label1.TabIndex = 0;
 			this.label1.Text = "Fi&nd what:";
 			// 
 			// label2
@@ -73,7 +76,7 @@ namespace FindInFiles
 			this.label2.Location = new System.Drawing.Point( 12, 56 );
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size( 45, 13 );
-			this.label2.TabIndex = 3;
+			this.label2.TabIndex = 2;
 			this.label2.Text = "&Look in:";
 			// 
 			// groupBox1
@@ -87,7 +90,7 @@ namespace FindInFiles
 			this.groupBox1.Location = new System.Drawing.Point( 15, 99 );
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size( 432, 155 );
-			this.groupBox1.TabIndex = 5;
+			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Find Options";
 			// 
@@ -97,7 +100,8 @@ namespace FindInFiles
 			this.textDirectoryExcludes.Location = new System.Drawing.Point( 9, 127 );
 			this.textDirectoryExcludes.Name = "textDirectoryExcludes";
 			this.textDirectoryExcludes.Size = new System.Drawing.Size( 417, 21 );
-			this.textDirectoryExcludes.TabIndex = 9;
+			this.textDirectoryExcludes.TabIndex = 5;
+			toolTip.SetToolTip( this.textDirectoryExcludes, "Directories to exclude - eg: .svn,tmp" );
 			// 
 			// textSearchExtensions
 			// 
@@ -105,7 +109,8 @@ namespace FindInFiles
 			this.textSearchExtensions.Location = new System.Drawing.Point( 9, 82 );
 			this.textSearchExtensions.Name = "textSearchExtensions";
 			this.textSearchExtensions.Size = new System.Drawing.Size( 417, 21 );
-			this.textSearchExtensions.TabIndex = 8;
+			this.textSearchExtensions.TabIndex = 3;
+			toolTip.SetToolTip( this.textSearchExtensions, "File types to search for - eg: *.rb, *.rhtml, *.js" );
 			// 
 			// label4
 			// 
@@ -113,7 +118,7 @@ namespace FindInFiles
 			this.label4.Location = new System.Drawing.Point( 6, 110 );
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size( 128, 13 );
-			this.label4.TabIndex = 6;
+			this.label4.TabIndex = 4;
 			this.label4.Text = "E&xclude these directories:";
 			// 
 			// label3
@@ -122,7 +127,7 @@ namespace FindInFiles
 			this.label3.Location = new System.Drawing.Point( 6, 65 );
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size( 119, 13 );
-			this.label3.TabIndex = 4;
+			this.label3.TabIndex = 2;
 			this.label3.Text = "Look at these file &types:";
 			// 
 			// checkMatchCase
@@ -131,8 +136,9 @@ namespace FindInFiles
 			this.checkMatchCase.Location = new System.Drawing.Point( 9, 19 );
 			this.checkMatchCase.Name = "checkMatchCase";
 			this.checkMatchCase.Size = new System.Drawing.Size( 82, 17 );
-			this.checkMatchCase.TabIndex = 1;
+			this.checkMatchCase.TabIndex = 0;
 			this.checkMatchCase.Text = "Match &case";
+			toolTip.SetToolTip( this.checkMatchCase, "If ticked, the search will be case-sensitive" );
 			this.checkMatchCase.UseVisualStyleBackColor = true;
 			// 
 			// checkUseRegex
@@ -141,8 +147,9 @@ namespace FindInFiles
 			this.checkUseRegex.Location = new System.Drawing.Point( 9, 41 );
 			this.checkUseRegex.Name = "checkUseRegex";
 			this.checkUseRegex.Size = new System.Drawing.Size( 144, 17 );
-			this.checkUseRegex.TabIndex = 0;
+			this.checkUseRegex.TabIndex = 1;
 			this.checkUseRegex.Text = "Use Regular &Expressions";
+			toolTip.SetToolTip( this.checkUseRegex, "If ticked, .NET regular expressions will be used to match the search pattern" );
 			this.checkUseRegex.UseVisualStyleBackColor = true;
 			// 
 			// textProgress
@@ -155,11 +162,12 @@ namespace FindInFiles
 			// 
 			// buttonBrowse
 			// 
-			this.buttonBrowse.Location = new System.Drawing.Point( 422, 72 );
+			this.buttonBrowse.Location = new System.Drawing.Point( 417, 72 );
 			this.buttonBrowse.Name = "buttonBrowse";
-			this.buttonBrowse.Size = new System.Drawing.Size( 25, 21 );
-			this.buttonBrowse.TabIndex = 7;
+			this.buttonBrowse.Size = new System.Drawing.Size( 30, 21 );
+			this.buttonBrowse.TabIndex = 5;
 			this.buttonBrowse.Text = "...";
+			toolTip.SetToolTip( this.buttonBrowse, "Browse for a directory" );
 			this.buttonBrowse.UseVisualStyleBackColor = true;
 			this.buttonBrowse.Click += new System.EventHandler( this.OnButtonBrowse_Click );
 			// 
@@ -168,8 +176,9 @@ namespace FindInFiles
 			this.textSearchPath.FormattingEnabled = true;
 			this.textSearchPath.Location = new System.Drawing.Point( 15, 72 );
 			this.textSearchPath.Name = "textSearchPath";
-			this.textSearchPath.Size = new System.Drawing.Size( 371, 21 );
-			this.textSearchPath.TabIndex = 8;
+			this.textSearchPath.Size = new System.Drawing.Size( 356, 21 );
+			this.textSearchPath.TabIndex = 3;
+			toolTip.SetToolTip( this.textSearchPath, "The directory to search in" );
 			this.textSearchPath.TextChanged += new System.EventHandler( this.OnParamsChanged );
 			// 
 			// textSearchPattern
@@ -177,37 +186,44 @@ namespace FindInFiles
 			this.textSearchPattern.FormattingEnabled = true;
 			this.textSearchPattern.Location = new System.Drawing.Point( 15, 26 );
 			this.textSearchPattern.Name = "textSearchPattern";
-			this.textSearchPattern.Size = new System.Drawing.Size( 408, 21 );
-			this.textSearchPattern.TabIndex = 9;
+			this.textSearchPattern.Size = new System.Drawing.Size( 404, 21 );
+			this.textSearchPattern.TabIndex = 1;
+			toolTip.SetToolTip( this.textSearchPattern, "The string or regular expression to search for" );
 			this.textSearchPattern.TextChanged += new System.EventHandler( this.OnParamsChanged );
 			// 
 			// buttonUseProjectDir
 			// 
-			this.buttonUseProjectDir.Location = new System.Drawing.Point( 406, 72 );
+			this.buttonUseProjectDir.Location = new System.Drawing.Point( 396, 72 );
 			this.buttonUseProjectDir.Name = "buttonUseProjectDir";
-			this.buttonUseProjectDir.Size = new System.Drawing.Size( 15, 21 );
-			this.buttonUseProjectDir.TabIndex = 10;
-			this.buttonUseProjectDir.Text = "P";
+			this.buttonUseProjectDir.Size = new System.Drawing.Size( 21, 21 );
+			this.buttonUseProjectDir.TabIndex = 7;
+			this.buttonUseProjectDir.TabStop = false;
+			this.buttonUseProjectDir.Text = "&P";
+			toolTip.SetToolTip( this.buttonUseProjectDir, "Use the current project directory" );
 			this.buttonUseProjectDir.UseVisualStyleBackColor = true;
 			this.buttonUseProjectDir.Click += new System.EventHandler( this.UseProjectDirectory_Click );
 			// 
 			// buttonUseCurrentDirectory
 			// 
-			this.buttonUseCurrentDirectory.Location = new System.Drawing.Point( 390, 72 );
+			this.buttonUseCurrentDirectory.Location = new System.Drawing.Point( 374, 72 );
 			this.buttonUseCurrentDirectory.Name = "buttonUseCurrentDirectory";
-			this.buttonUseCurrentDirectory.Size = new System.Drawing.Size( 15, 21 );
-			this.buttonUseCurrentDirectory.TabIndex = 11;
-			this.buttonUseCurrentDirectory.Text = "C";
+			this.buttonUseCurrentDirectory.Size = new System.Drawing.Size( 21, 21 );
+			this.buttonUseCurrentDirectory.TabIndex = 6;
+			this.buttonUseCurrentDirectory.TabStop = false;
+			this.buttonUseCurrentDirectory.Text = "&D";
+			toolTip.SetToolTip( this.buttonUseCurrentDirectory, "Use the current file\'s directory" );
 			this.buttonUseCurrentDirectory.UseVisualStyleBackColor = true;
 			this.buttonUseCurrentDirectory.Click += new System.EventHandler( this.UseCurrentDirectory_Click );
 			// 
 			// buttonUseCurrentWord
 			// 
-			this.buttonUseCurrentWord.Location = new System.Drawing.Point( 426, 26 );
+			this.buttonUseCurrentWord.Location = new System.Drawing.Point( 422, 26 );
 			this.buttonUseCurrentWord.Name = "buttonUseCurrentWord";
-			this.buttonUseCurrentWord.Size = new System.Drawing.Size( 21, 21 );
+			this.buttonUseCurrentWord.Size = new System.Drawing.Size( 25, 21 );
 			this.buttonUseCurrentWord.TabIndex = 12;
-			this.buttonUseCurrentWord.Text = "W";
+			this.buttonUseCurrentWord.TabStop = false;
+			this.buttonUseCurrentWord.Text = "&W";
+			toolTip.SetToolTip( this.buttonUseCurrentWord, "Use the current word under the cursor in E" );
 			this.buttonUseCurrentWord.UseVisualStyleBackColor = true;
 			this.buttonUseCurrentWord.Click += new System.EventHandler( this.UseCurrentWord_Click );
 			// 
@@ -238,7 +254,6 @@ namespace FindInFiles
 			this.Text = "Find in Files...";
 			this.Shown += new System.EventHandler( this.OnThis_Shown );
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.OnThis_Closing );
-			this.KeyDown += new System.Windows.Forms.KeyEventHandler( this.FindForm_KeyDown );
 			this.Load += new System.EventHandler( this.OnThis_Load );
 			this.groupBox1.ResumeLayout( false );
 			this.groupBox1.PerformLayout();

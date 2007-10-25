@@ -158,6 +158,14 @@ namespace FindInFiles
 
 				tmp = prefsKey.GetValue( "checkMatchCase" );
 				checkMatchCase.Checked = (tmp is int && (int)tmp == 1);
+
+				tmp = prefsKey.GetValue( "windowLeft" );
+				if( tmp is int )
+					Left = (int)tmp;
+
+				tmp = prefsKey.GetValue( "windowTop" );
+				if( tmp is int )
+					Top = (int)tmp;
 			}
 		}
 
@@ -177,6 +185,8 @@ namespace FindInFiles
 
 				prefsKey.SetValue( "checkUseRegex", checkUseRegex.Checked ? 1 : 0 );
 				prefsKey.SetValue( "checkMatchCase", checkMatchCase.Checked ? 1 : 0 );
+				prefsKey.SetValue( "windowLeft", Left );
+				prefsKey.SetValue( "windowTop", Top );
 			}
 		}
 
@@ -244,10 +254,12 @@ namespace FindInFiles
 				textSearchExtensions.Text = "*.*";
 		}
 
-		private void FindForm_KeyDown( object sender, KeyEventArgs e )
+		protected override bool ProcessCmdKey( ref Message msg, Keys keyData )
 		{
-			if( e.KeyCode == Keys.Escape )
+			if( keyData == Keys.Escape )
 				Close();
+
+			return base.ProcessCmdKey( ref msg, keyData );
 		}
 
 		private void OnThis_Shown( object sender, EventArgs e )

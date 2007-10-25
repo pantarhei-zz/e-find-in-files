@@ -68,7 +68,7 @@ Launch the E bundle editor. Under text files, create a new command.
 Call it whatever you like, although I find "find in files" is nice :-)
 
 For this new command, it should be as follows:
-Environment: Windows Native
+Environment: Cygwin (generic)
 Input: Selected Text or Word
 Output: Show as HTML
 Activation: Key Equivalent: Ctrl-Shift-F (or whatever you want)
@@ -77,9 +77,10 @@ Scope Selector: empty
 The bundle contents (big text box) should be set as follows:
 
 If you've put the FindInFiles.exe in the recommended, path above, then use the following:
-"%APPDATA%\e\Support\bin\FindInFiles.exe"
+"$APPDATA/e/Support/bin/FindInFiles.exe"
 
-Otherwise use the full quoted path to where you placed FindInFiles.exe. It doesn't need any command line arguments.
+Otherwise use the full quoted path to where you placed FindInFiles.exe. It doesn't need any command line arguments, 
+but you do need to take cygwin paths into account
 
 * Step 3: 
 

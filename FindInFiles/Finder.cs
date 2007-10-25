@@ -71,6 +71,8 @@ namespace FindInFiles
 	/// </summary>
 	class FindResults
 	{
+		public readonly string SearchPattern;
+		public readonly string SearchPath;
 		public readonly TimeSpan TimeTaken;
 		public readonly int NumFilesSearched;
 		public readonly int NumFilesMatched;
@@ -78,8 +80,11 @@ namespace FindInFiles
 
 		public readonly List<FindResult> Matches;
 
-		public FindResults( TimeSpan timeTaken, int numFilesSearched, int numFilesMatched, int numLinesMatched, List<FindResult> matches )
+		public FindResults( string searchPattern, string searchPath, TimeSpan timeTaken, int numFilesSearched, int numFilesMatched, int numLinesMatched, List<FindResult> matches )
 		{
+			SearchPattern = searchPattern;
+			SearchPath = searchPath + (searchPath.EndsWith("\\") ? "" : "\\"); // make sure it always ends with a \ so the output format is pretty
+			
 			TimeTaken = timeTaken;
 			NumFilesSearched = numFilesSearched;
 			NumFilesMatched = numFilesMatched;
@@ -95,6 +100,14 @@ namespace FindInFiles
 				Replace( "'", "&#39;" );
 		}
 
+		private string MakeShortPath( string basePath, string fullPath )
+		{
+			if( fullPath.IndexOf( basePath, StringComparison.CurrentCultureIgnoreCase ) != -1 )
+				return fullPath.Substring( basePath.Length );
+			else
+				return fullPath;
+		}
+
 		public override string ToString()
 		{
 			StringBuilder str = new StringBuilder(Matches.Count * 60); //guesstimate 60 characters per line for buffer size
@@ -105,13 +118,15 @@ namespace FindInFiles
 			foreach (FindResult match in Matches)
 			{
 				str.AppendFormat(
-					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{0}({1}): {2}</a>\n",
-					match.File, match.LineNumber, EscapeHtml(match.LineText) );
+					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>\n",
+					match.File, match.LineNumber, MakeShortPath( SearchPath, match.File ), EscapeHtml( match.LineText ) );
 			}
 
 			str.AppendLine( "--------------------------------------------------------------------------------" );
-			str.AppendFormat("Matching Lines: {0}\t Matching Files: {1}\t Total files searched: {2} in {3}s\n",
-				NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds);
+
+			str.AppendFormat( "Searched For '{0}' in {1}\n", SearchPattern, SearchPath );
+			str.AppendFormat("{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s\n",
+				NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds );
 
 			str.AppendLine( "</pre>" );
 			return str.ToString();
@@ -238,6 +253,8 @@ namespace FindInFiles
 			}
 
 			return new FindResults(
+				Options.SearchPattern,
+				Options.SearchPath,
 				DateTime.Now - startedAt,
 				files.Count,
 				numFilesMatched,
