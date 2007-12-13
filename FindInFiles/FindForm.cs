@@ -8,11 +8,13 @@ using System.Text;
 using System.Windows.Forms;
 
 using System.Threading;
+using System.Security.Permissions;
 using Microsoft.Win32;
 
 namespace FindInFiles
 {
 	public delegate void Func();
+	public delegate void Func<T>( T obj );
 
 	public partial class FindForm : Form
 	{
@@ -64,41 +66,41 @@ namespace FindInFiles
 
 			buttonFind.Enabled = false;
 
-			Finder f = new Finder( options );
-			f.ScanningFile += delegate( string text ) {
-				SafeInvoke( delegate() {
-					SetProgressText( text );
-				} );
+			var finder = new Finder( options );
+			finder.ScanningFile += ( text ) => {
+				SafeInvoke( () => SetProgressText( text ) );
 			};
 
-			new Thread( new ThreadStart( delegate() {
-				string output = "";
-				try
-				{
-					FindResults results = f.Find();
+			// Do the find in another thread
+			var worker = (Func<Finder>)FindWorker;
+			worker.BeginInvoke( finder, null, null );
+		}
 
-					SafeInvoke( (Func)delegate() {
-						SetProgressText( "..." );
-					} );
-					Console.Write( results.ToString() );
+		private void FindWorker( Finder finder )
+		{
+			try
+			{
+				var results = finder.Find();
 
-					SafeInvoke( (Func)delegate() {
-						OnParamsChanged( null, null );
-						buttonFind.Enabled = true;
-						SetProgressText( "" );
-						Close();
-					} );
-				}
-				catch( ArgumentException ex )
-				{
-					output = ex.Message;
-					SafeInvoke( (Func)delegate() {
-						OnParamsChanged( null, null );
-						SetProgressText( "" );
-						MessageBox.Show( this, output, "Error" );
-					} );
-				}
-			} ) ).Start();
+				SafeInvoke( () => SetProgressText( "..." ) );
+
+				Console.Write( results.ToString() );
+
+				SafeInvoke( () => {
+					OnParamsChanged( null, null );
+					buttonFind.Enabled = true;
+					SetProgressText( "" );
+					Close();
+				} );
+			}
+			catch( ArgumentException ex )
+			{
+				SafeInvoke( () => {
+					OnParamsChanged( null, null );
+					SetProgressText( "" );
+					MessageBox.Show( this, ex.Message, "Error" );
+				} );
+			}
 		}
 
 		private void OnThis_Load( object sender, EventArgs e )
@@ -127,7 +129,7 @@ namespace FindInFiles
 
 		// ------ Preference Loading Utils ------------------------------------
 
-		private RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
+		private static RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
 		{
 			RegistryKey ret = parent.OpenSubKey( subKeyName, true );
 			if( ret == null )
@@ -136,7 +138,7 @@ namespace FindInFiles
 			return ret;
 		}
 
-		private RegistryKey OpenPrefsRegistryKey()
+		private static RegistryKey OpenPrefsRegistryKey()
 		{
 			RegistryKey software = Registry.CurrentUser.OpenSubKey( "Software", true );
 			RegistryKey eAddons = OpenOrCreate( software, "e-addons" );
@@ -254,6 +256,7 @@ namespace FindInFiles
 				textSearchExtensions.Text = "*.*";
 		}
 
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 		protected override bool ProcessCmdKey( ref Message msg, Keys keyData )
 		{
 			if( keyData == Keys.Escape )

@@ -272,7 +272,7 @@ namespace FindInFiles
 		private System.Windows.Forms.CheckBox checkMatchCase;
 		private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.Label textProgress;
+        private System.Windows.Forms.Label textProgress;
 		private System.Windows.Forms.Button buttonBrowse;
 		private System.Windows.Forms.ComboBox textSearchPath;
 		private System.Windows.Forms.ComboBox textDirectoryExcludes;

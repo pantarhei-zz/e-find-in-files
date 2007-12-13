@@ -68,7 +68,7 @@ Launch the E bundle editor. Under text files, create a new command.
 Call it whatever you like, although I find "find in files" is nice :-)
 
 For this new command, it should be as follows:
-Environment: Windows Native
+Environment: Either Windows Native or Cygwin(generic)
 Input: Selected Text or Word
 Output: Show as HTML
 Activation: Key Equivalent: Ctrl-Shift-F (or whatever you want)
@@ -82,16 +82,16 @@ If you've put the FindInFiles.exe in the recommended, path above, then use the f
 Otherwise use the full quoted path to where you placed FindInFiles.exe. It doesn't need any command line arguments
 
 ** BUG:
-  As of writing, E has a 'bug' where it shows the command line for all windows native applications
+  As of writing, E has a bug where it shows the command line for all windows native applications
   This means that every time you run findinfiles, E will show the command line before the search results.
   
-  Switching the command to run in the Cygwin(generic) environment fixes this, but running under the
-  cygwin environment causes the 'current directory' and 'project directory' buttons to return invalid results.
+  Switching the command to run in the Cygwin(generic) environment fixes this, but it means that FindInFiles 
+  will have to manually invoke Cygpath to do path translation which may incur a small performance penalty.
   
-  IE: Under cygwin, they will return '/cygdrive/c/someproject/somedir/' instead of 'C:\someproject\somedir'.
-  FindInFiles cannot understand these paths so you'll have to manually edit the path.
+  If you do chose to use the Cygwin(generic) environment, you will need to change the bundle contents to the
+  following:
   
-  Pick which bug you like, or annoy alexander on the E forums to fix the E-native-windows command line problem :-)
+  "$APPDATA/e/Support/bin/FindInFiles.exe"
 
 * Step 3: 
 

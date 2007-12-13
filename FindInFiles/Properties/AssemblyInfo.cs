@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -29,5 +31,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.5")]
-[assembly: AssemblyFileVersion("1.0.0.5")]
+[assembly: AssemblyVersion("1.0.0.7")]
+[assembly: AssemblyFileVersion("1.0.0.7")]
+
+[assembly: CLSCompliant(false)] // don't care about CLS compliance
+[assembly: NeutralResourcesLanguage("en")]

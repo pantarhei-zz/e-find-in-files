@@ -1,12 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindInFiles", "FindInFiles\FindInFiles.csproj", "{71760719-225D-48F6-9E7C-07AD2743786B}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30801401-AE4D-4DD6-B9A2-D6A5EF786B69}"
 	ProjectSection(SolutionItems) = preProject
 		instructions.txt = instructions.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindInFiles", "FindInFiles\FindInFiles.csproj", "{71760719-225D-48F6-9E7C-07AD2743786B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

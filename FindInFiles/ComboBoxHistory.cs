@@ -1,5 +1,6 @@
 using System;
-using System.Diagnostics	;
+using System.Globalization;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -31,7 +32,7 @@ namespace FindInFiles
 
 			for( int i = 1; i < HISTORY_LENGTH; i++ )
 			{
-				PushBack( key.GetValue( Name + i.ToString() ) as string );
+				PushBack( key.GetValue( Name + i.ToString(CultureInfo.InvariantCulture) ) as string );
 			}
 
 			SetComboBox( Box );
@@ -79,7 +80,7 @@ namespace FindInFiles
 			key.SetValue( Name, Values[0] );
 			for( int i = 1; i < Values.Count; i++ )
 			{
-				key.SetValue( Name + i.ToString(), Values[i] );
+				key.SetValue( Name + i.ToString(CultureInfo.InvariantCulture), Values[i] );
 			}
 		}
 
