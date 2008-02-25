@@ -66,5 +66,15 @@ namespace FindInFiles
 			{ }
 			return path;
 		}
+
+		/// <summary>
+		/// Cleans the path and runs ConvertCygpath over it
+		/// </summary>
+		/// <param name="path">Dirty cygwin path</param>
+		/// <returns>Clean windows friendly path</returns>
+		public static string CleanAndConvertCygpath( string path )
+		{
+			return ConvertCygpath( CleanPath( path ) );
+		}
 	}
 }

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Security.Permissions;
 using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace FindInFiles
 {
@@ -27,14 +28,16 @@ namespace FindInFiles
 		{
 			InitializeComponent();
 
-			SearchPathHistory = new ComboBoxHistory( "textSearchPath", textSearchPath );
-			SearchPatternHistory = new ComboBoxHistory( "textSearchPattern", textSearchPattern );
-			SearchExtensionsHistory = new ComboBoxHistory( "textSearchExtensions", textSearchExtensions );
+			SearchPathHistory        = new ComboBoxHistory( "textSearchPath", textSearchPath );
+			SearchPatternHistory     = new ComboBoxHistory( "textSearchPattern", textSearchPattern );
+			SearchExtensionsHistory  = new ComboBoxHistory( "textSearchExtensions", textSearchExtensions );
 			DirectoryExcludesHistory = new ComboBoxHistory( "textDirectoryExcludes", textDirectoryExcludes );
 		}
 
 		public void SetProgressText( string txt )
 		{
+			Debug.Assert( txt != null );
+
 			if( txt.Length > 40 )
 				this.textProgress.Text = "..." + txt.Substring( txt.Length - 37, 37 );
 			else
@@ -43,6 +46,8 @@ namespace FindInFiles
 
 		public void SafeInvoke( Func fn )
 		{
+			Debug.Assert( fn != null );
+
 			try
 			{
 				Invoke( fn );
@@ -78,6 +83,8 @@ namespace FindInFiles
 
 		private void FindWorker( Finder finder )
 		{
+			Debug.Assert( finder != null );
+
 			try
 			{
 				var results = finder.Find();
@@ -131,6 +138,9 @@ namespace FindInFiles
 
 		private static RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
 		{
+			Debug.Assert( parent != null );
+			Debug.Assert( subKeyName != null );
+
 			RegistryKey ret = parent.OpenSubKey( subKeyName, true );
 			if( ret == null )
 				ret = parent.CreateSubKey( subKeyName );
@@ -209,7 +219,7 @@ namespace FindInFiles
 				MessageBox.Show( "No Project Directory is set" );
 				return;
 			}
-			textSearchPath.Text = projectDir;
+			textSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
 		}
 
 		private void UseCurrentDirectory_Click( object sender, EventArgs e )
@@ -220,7 +230,7 @@ namespace FindInFiles
 				MessageBox.Show( "No Current Directory is set" );
 				return;
 			}
-			textSearchPath.Text = dir;
+			textSearchPath.Text = Util.CleanAndConvertCygpath(dir);
 		}
 
 		private void UseCurrentWord_Click( object sender, EventArgs e )

@@ -31,8 +31,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.7")]
-[assembly: AssemblyFileVersion("1.0.0.7")]
+[assembly: AssemblyVersion("1.0.0.8")]
+[assembly: AssemblyFileVersion("1.0.0.8")]
 
-[assembly: CLSCompliant(false)] // don't care about CLS compliance
+[assembly: CLSCompliant(true)]
 [assembly: NeutralResourcesLanguage("en")]

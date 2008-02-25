@@ -27,7 +27,7 @@ namespace FindInFiles
 			Debug.Assert( searchExtensions != null );
 			Debug.Assert( directoryExcludes != null );
 
-			SearchPath = Util.ConvertCygpath( Util.CleanPath( searchPath ) );
+			SearchPath = Util.CleanAndConvertCygpath( searchPath );
 			SearchPattern = searchPattern;
 			MatchCase = matchCase;
 			UseRegex = useRegex;
