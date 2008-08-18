@@ -23,6 +23,26 @@ namespace FindInFiles.Controls
 				target.Target = this; // 2 way link
 			}
 		}
+
+		public override string Text
+		{
+			get
+			{
+				return base.Text;
+			}
+			set
+			{
+				base.Text = value;
+
+				if( target != null )
+					target.SetText( value ); // prevent infinite loops
+			}
+		}
+
+		protected void SetText( string value )
+		{
+			base.Text = value;
+		}
 		
 		// you'd think this would infinite loop, but apparently not
 		protected override void OnLostFocus( EventArgs e )

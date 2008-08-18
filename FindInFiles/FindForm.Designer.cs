@@ -33,24 +33,24 @@ namespace FindInFiles
 			this.buttonUseCurrentWord = new System.Windows.Forms.Button();
 			this.buttonUseCurrentDirectory = new System.Windows.Forms.Button();
 			this.buttonUseProjectDir = new System.Windows.Forms.Button();
-			this.textSearchPattern = new FindInFiles.Controls.LinkedComboBox();
-			this.textSearchPath = new FindInFiles.Controls.LinkedComboBox();
 			this.buttonBrowse = new System.Windows.Forms.Button();
-			this.textSearchExtensions = new FindInFiles.Controls.LinkedComboBox();
-			this.checkMatchCase = new FindInFiles.Controls.LinkedCheckBox();
-			this.textDirectoryExcludes = new FindInFiles.Controls.LinkedComboBox();
-			this.checkUseRegex = new FindInFiles.Controls.LinkedCheckBox();
 			this.buttonReplaceUseCurrentWord = new System.Windows.Forms.Button();
 			this.buttonReplaceUseCurrentDirectory = new System.Windows.Forms.Button();
 			this.buttonReplaceUseProjectDir = new System.Windows.Forms.Button();
+			this.buttonReplaceBrowse = new System.Windows.Forms.Button();
+			this.textReplaceWith = new System.Windows.Forms.ComboBox();
+			this.textSearchPattern = new FindInFiles.Controls.LinkedComboBox();
+			this.textSearchPath = new FindInFiles.Controls.LinkedComboBox();
+			this.textDirectoryExcludes = new FindInFiles.Controls.LinkedComboBox();
+			this.textSearchExtensions = new FindInFiles.Controls.LinkedComboBox();
+			this.checkMatchCase = new FindInFiles.Controls.LinkedCheckBox();
+			this.checkUseRegex = new FindInFiles.Controls.LinkedCheckBox();
 			this.textReplaceSearchPattern = new FindInFiles.Controls.LinkedComboBox();
 			this.textReplaceSearchPath = new FindInFiles.Controls.LinkedComboBox();
-			this.buttonReplaceBrowse = new System.Windows.Forms.Button();
 			this.textReplaceDirectoryExcludes = new FindInFiles.Controls.LinkedComboBox();
 			this.textReplaceSearchExtensions = new FindInFiles.Controls.LinkedComboBox();
 			this.checkReplaceMatchCase = new FindInFiles.Controls.LinkedCheckBox();
 			this.checkReplaceUseRegex = new FindInFiles.Controls.LinkedCheckBox();
-			this.textReplaceWith = new System.Windows.Forms.ComboBox();
 			this.tabControl = new System.Windows.Forms.TabControl();
 			this.findTab = new System.Windows.Forms.TabPage();
 			this.textProgress = new System.Windows.Forms.Label();
@@ -87,6 +87,7 @@ namespace FindInFiles
 			this.buttonUseCurrentWord.Text = "&W";
 			toolTip.SetToolTip( this.buttonUseCurrentWord, "Use the current word under the cursor in E" );
 			this.buttonUseCurrentWord.UseVisualStyleBackColor = true;
+			this.buttonUseCurrentWord.Click += new System.EventHandler( this.UseCurrentWord_Click );
 			// 
 			// buttonUseCurrentDirectory
 			// 
@@ -98,6 +99,7 @@ namespace FindInFiles
 			this.buttonUseCurrentDirectory.Text = "&D";
 			toolTip.SetToolTip( this.buttonUseCurrentDirectory, "Use the current file\'s directory" );
 			this.buttonUseCurrentDirectory.UseVisualStyleBackColor = true;
+			this.buttonUseCurrentDirectory.Click += new System.EventHandler( this.UseCurrentDirectory_Click );
 			// 
 			// buttonUseProjectDir
 			// 
@@ -109,6 +111,74 @@ namespace FindInFiles
 			this.buttonUseProjectDir.Text = "&P";
 			toolTip.SetToolTip( this.buttonUseProjectDir, "Use the current project directory" );
 			this.buttonUseProjectDir.UseVisualStyleBackColor = true;
+			this.buttonUseProjectDir.Click += new System.EventHandler( this.UseProjectDirectory_Click );
+			// 
+			// buttonBrowse
+			// 
+			this.buttonBrowse.Location = new System.Drawing.Point( 409, 68 );
+			this.buttonBrowse.Name = "buttonBrowse";
+			this.buttonBrowse.Size = new System.Drawing.Size( 30, 21 );
+			this.buttonBrowse.TabIndex = 18;
+			this.buttonBrowse.Text = "...";
+			toolTip.SetToolTip( this.buttonBrowse, "Browse for a directory" );
+			this.buttonBrowse.UseVisualStyleBackColor = true;
+			this.buttonBrowse.Click += new System.EventHandler( this.OnButtonBrowse_Click );
+			// 
+			// buttonReplaceUseCurrentWord
+			// 
+			this.buttonReplaceUseCurrentWord.Location = new System.Drawing.Point( 414, 22 );
+			this.buttonReplaceUseCurrentWord.Name = "buttonReplaceUseCurrentWord";
+			this.buttonReplaceUseCurrentWord.Size = new System.Drawing.Size( 25, 21 );
+			this.buttonReplaceUseCurrentWord.TabIndex = 6;
+			this.buttonReplaceUseCurrentWord.TabStop = false;
+			this.buttonReplaceUseCurrentWord.Text = "&W";
+			toolTip.SetToolTip( this.buttonReplaceUseCurrentWord, "Use the current word under the cursor in E" );
+			this.buttonReplaceUseCurrentWord.UseVisualStyleBackColor = true;
+			this.buttonReplaceUseCurrentWord.Click += new System.EventHandler( this.UseCurrentWord_Click );
+			// 
+			// buttonReplaceUseCurrentDirectory
+			// 
+			this.buttonReplaceUseCurrentDirectory.Location = new System.Drawing.Point( 366, 107 );
+			this.buttonReplaceUseCurrentDirectory.Name = "buttonReplaceUseCurrentDirectory";
+			this.buttonReplaceUseCurrentDirectory.Size = new System.Drawing.Size( 21, 21 );
+			this.buttonReplaceUseCurrentDirectory.TabIndex = 7;
+			this.buttonReplaceUseCurrentDirectory.TabStop = false;
+			this.buttonReplaceUseCurrentDirectory.Text = "&D";
+			toolTip.SetToolTip( this.buttonReplaceUseCurrentDirectory, "Use the current file\'s directory" );
+			this.buttonReplaceUseCurrentDirectory.UseVisualStyleBackColor = true;
+			this.buttonReplaceUseCurrentDirectory.Click += new System.EventHandler( this.UseCurrentDirectory_Click );
+			// 
+			// buttonReplaceUseProjectDir
+			// 
+			this.buttonReplaceUseProjectDir.Location = new System.Drawing.Point( 388, 107 );
+			this.buttonReplaceUseProjectDir.Name = "buttonReplaceUseProjectDir";
+			this.buttonReplaceUseProjectDir.Size = new System.Drawing.Size( 21, 21 );
+			this.buttonReplaceUseProjectDir.TabIndex = 8;
+			this.buttonReplaceUseProjectDir.TabStop = false;
+			this.buttonReplaceUseProjectDir.Text = "&P";
+			toolTip.SetToolTip( this.buttonReplaceUseProjectDir, "Use the current project directory" );
+			this.buttonReplaceUseProjectDir.UseVisualStyleBackColor = true;
+			this.buttonReplaceUseProjectDir.Click += new System.EventHandler( this.UseProjectDirectory_Click );
+			// 
+			// buttonReplaceBrowse
+			// 
+			this.buttonReplaceBrowse.Location = new System.Drawing.Point( 409, 107 );
+			this.buttonReplaceBrowse.Name = "buttonReplaceBrowse";
+			this.buttonReplaceBrowse.Size = new System.Drawing.Size( 30, 21 );
+			this.buttonReplaceBrowse.TabIndex = 9;
+			this.buttonReplaceBrowse.Text = "...";
+			toolTip.SetToolTip( this.buttonReplaceBrowse, "Browse for a directory" );
+			this.buttonReplaceBrowse.UseVisualStyleBackColor = true;
+			this.buttonReplaceBrowse.Click += new System.EventHandler( this.OnButtonBrowse_Click );
+			// 
+			// textReplaceWith
+			// 
+			this.textReplaceWith.FormattingEnabled = true;
+			this.textReplaceWith.Location = new System.Drawing.Point( 7, 65 );
+			this.textReplaceWith.Name = "textReplaceWith";
+			this.textReplaceWith.Size = new System.Drawing.Size( 404, 21 );
+			this.textReplaceWith.TabIndex = 3;
+			toolTip.SetToolTip( this.textReplaceWith, "The string or regular expression to search for" );
 			// 
 			// textSearchPattern
 			// 
@@ -128,15 +198,14 @@ namespace FindInFiles
 			this.textSearchPath.TabIndex = 16;
 			toolTip.SetToolTip( this.textSearchPath, "The directory to search in" );
 			// 
-			// buttonBrowse
+			// textDirectoryExcludes
 			// 
-			this.buttonBrowse.Location = new System.Drawing.Point( 409, 68 );
-			this.buttonBrowse.Name = "buttonBrowse";
-			this.buttonBrowse.Size = new System.Drawing.Size( 30, 21 );
-			this.buttonBrowse.TabIndex = 18;
-			this.buttonBrowse.Text = "...";
-			toolTip.SetToolTip( this.buttonBrowse, "Browse for a directory" );
-			this.buttonBrowse.UseVisualStyleBackColor = true;
+			this.textDirectoryExcludes.FormattingEnabled = true;
+			this.textDirectoryExcludes.Location = new System.Drawing.Point( 9, 127 );
+			this.textDirectoryExcludes.Name = "textDirectoryExcludes";
+			this.textDirectoryExcludes.Size = new System.Drawing.Size( 417, 21 );
+			this.textDirectoryExcludes.TabIndex = 5;
+			toolTip.SetToolTip( this.textDirectoryExcludes, "Directories to exclude - eg: .svn,tmp" );
 			// 
 			// textSearchExtensions
 			// 
@@ -158,15 +227,6 @@ namespace FindInFiles
 			toolTip.SetToolTip( this.checkMatchCase, "If ticked, the search will be case-sensitive" );
 			this.checkMatchCase.UseVisualStyleBackColor = true;
 			// 
-			// textDirectoryExcludes
-			// 
-			this.textDirectoryExcludes.FormattingEnabled = true;
-			this.textDirectoryExcludes.Location = new System.Drawing.Point( 9, 127 );
-			this.textDirectoryExcludes.Name = "textDirectoryExcludes";
-			this.textDirectoryExcludes.Size = new System.Drawing.Size( 417, 21 );
-			this.textDirectoryExcludes.TabIndex = 5;
-			toolTip.SetToolTip( this.textDirectoryExcludes, "Directories to exclude - eg: .svn,tmp" );
-			// 
 			// checkUseRegex
 			// 
 			this.checkUseRegex.AutoSize = true;
@@ -178,49 +238,13 @@ namespace FindInFiles
 			toolTip.SetToolTip( this.checkUseRegex, "If ticked, .NET regular expressions will be used to match the search pattern" );
 			this.checkUseRegex.UseVisualStyleBackColor = true;
 			// 
-			// buttonReplaceUseCurrentWord
-			// 
-			this.buttonReplaceUseCurrentWord.Location = new System.Drawing.Point( 414, 22 );
-			this.buttonReplaceUseCurrentWord.Name = "buttonReplaceUseCurrentWord";
-			this.buttonReplaceUseCurrentWord.Size = new System.Drawing.Size( 25, 21 );
-			this.buttonReplaceUseCurrentWord.TabIndex = 34;
-			this.buttonReplaceUseCurrentWord.TabStop = false;
-			this.buttonReplaceUseCurrentWord.Text = "&W";
-			toolTip.SetToolTip( this.buttonReplaceUseCurrentWord, "Use the current word under the cursor in E" );
-			this.buttonReplaceUseCurrentWord.UseVisualStyleBackColor = true;
-			this.buttonReplaceUseCurrentWord.Click += new System.EventHandler( this.UseCurrentWord_Click );
-			// 
-			// buttonReplaceUseCurrentDirectory
-			// 
-			this.buttonReplaceUseCurrentDirectory.Location = new System.Drawing.Point( 366, 107 );
-			this.buttonReplaceUseCurrentDirectory.Name = "buttonReplaceUseCurrentDirectory";
-			this.buttonReplaceUseCurrentDirectory.Size = new System.Drawing.Size( 21, 21 );
-			this.buttonReplaceUseCurrentDirectory.TabIndex = 31;
-			this.buttonReplaceUseCurrentDirectory.TabStop = false;
-			this.buttonReplaceUseCurrentDirectory.Text = "&D";
-			toolTip.SetToolTip( this.buttonReplaceUseCurrentDirectory, "Use the current file\'s directory" );
-			this.buttonReplaceUseCurrentDirectory.UseVisualStyleBackColor = true;
-			this.buttonReplaceUseCurrentDirectory.Click += new System.EventHandler( this.UseCurrentDirectory_Click );
-			// 
-			// buttonReplaceUseProjectDir
-			// 
-			this.buttonReplaceUseProjectDir.Location = new System.Drawing.Point( 388, 107 );
-			this.buttonReplaceUseProjectDir.Name = "buttonReplaceUseProjectDir";
-			this.buttonReplaceUseProjectDir.Size = new System.Drawing.Size( 21, 21 );
-			this.buttonReplaceUseProjectDir.TabIndex = 33;
-			this.buttonReplaceUseProjectDir.TabStop = false;
-			this.buttonReplaceUseProjectDir.Text = "&P";
-			toolTip.SetToolTip( this.buttonReplaceUseProjectDir, "Use the current project directory" );
-			this.buttonReplaceUseProjectDir.UseVisualStyleBackColor = true;
-			this.buttonReplaceUseProjectDir.Click += new System.EventHandler( this.UseProjectDirectory_Click );
-			// 
 			// textReplaceSearchPattern
 			// 
 			this.textReplaceSearchPattern.FormattingEnabled = true;
 			this.textReplaceSearchPattern.Location = new System.Drawing.Point( 7, 22 );
 			this.textReplaceSearchPattern.Name = "textReplaceSearchPattern";
 			this.textReplaceSearchPattern.Size = new System.Drawing.Size( 404, 21 );
-			this.textReplaceSearchPattern.TabIndex = 25;
+			this.textReplaceSearchPattern.TabIndex = 1;
 			toolTip.SetToolTip( this.textReplaceSearchPattern, "The string or regular expression to search for" );
 			// 
 			// textReplaceSearchPath
@@ -229,19 +253,8 @@ namespace FindInFiles
 			this.textReplaceSearchPath.Location = new System.Drawing.Point( 7, 107 );
 			this.textReplaceSearchPath.Name = "textReplaceSearchPath";
 			this.textReplaceSearchPath.Size = new System.Drawing.Size( 356, 21 );
-			this.textReplaceSearchPath.TabIndex = 27;
+			this.textReplaceSearchPath.TabIndex = 5;
 			toolTip.SetToolTip( this.textReplaceSearchPath, "The directory to search in" );
-			// 
-			// buttonReplaceBrowse
-			// 
-			this.buttonReplaceBrowse.Location = new System.Drawing.Point( 409, 107 );
-			this.buttonReplaceBrowse.Name = "buttonReplaceBrowse";
-			this.buttonReplaceBrowse.Size = new System.Drawing.Size( 30, 21 );
-			this.buttonReplaceBrowse.TabIndex = 29;
-			this.buttonReplaceBrowse.Text = "...";
-			toolTip.SetToolTip( this.buttonReplaceBrowse, "Browse for a directory" );
-			this.buttonReplaceBrowse.UseVisualStyleBackColor = true;
-			this.buttonReplaceBrowse.Click += new System.EventHandler( this.OnButtonBrowse_Click );
 			// 
 			// textReplaceDirectoryExcludes
 			// 
@@ -283,21 +296,13 @@ namespace FindInFiles
 			toolTip.SetToolTip( this.checkReplaceUseRegex, "If ticked, .NET regular expressions will be used to match the search pattern" );
 			this.checkReplaceUseRegex.UseVisualStyleBackColor = true;
 			// 
-			// textReplaceWith
-			// 
-			this.textReplaceWith.FormattingEnabled = true;
-			this.textReplaceWith.Location = new System.Drawing.Point( 7, 65 );
-			this.textReplaceWith.Name = "textReplaceWith";
-			this.textReplaceWith.Size = new System.Drawing.Size( 404, 21 );
-			this.textReplaceWith.TabIndex = 35;
-			toolTip.SetToolTip( this.textReplaceWith, "The string or regular expression to search for" );
-			// 
 			// tabControl
 			// 
 			this.tabControl.Controls.Add( this.findTab );
 			this.tabControl.Controls.Add( this.replaceTab );
 			this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl.Location = new System.Drawing.Point( 0, 0 );
+			this.tabControl.Margin = new System.Windows.Forms.Padding( 0 );
 			this.tabControl.Name = "tabControl";
 			this.tabControl.SelectedIndex = 0;
 			this.tabControl.Size = new System.Drawing.Size( 450, 331 );
@@ -306,6 +311,7 @@ namespace FindInFiles
 			// 
 			// findTab
 			// 
+			this.findTab.BackColor = System.Drawing.SystemColors.Control;
 			this.findTab.Controls.Add( this.buttonUseCurrentWord );
 			this.findTab.Controls.Add( this.buttonUseCurrentDirectory );
 			this.findTab.Controls.Add( this.buttonUseProjectDir );
@@ -323,7 +329,6 @@ namespace FindInFiles
 			this.findTab.Size = new System.Drawing.Size( 442, 305 );
 			this.findTab.TabIndex = 0;
 			this.findTab.Text = "Find";
-			this.findTab.UseVisualStyleBackColor = true;
 			// 
 			// textProgress
 			// 
@@ -396,26 +401,26 @@ namespace FindInFiles
 			// 
 			// replaceTab
 			// 
+			this.replaceTab.BackColor = System.Drawing.SystemColors.Control;
 			this.replaceTab.Controls.Add( this.labelReplaceWith );
 			this.replaceTab.Controls.Add( this.textReplaceWith );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseCurrentWord );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseCurrentDirectory );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseProjectDir );
-			this.replaceTab.Controls.Add( this.textReplaceSearchPattern );
-			this.replaceTab.Controls.Add( this.textReplaceSearchPath );
 			this.replaceTab.Controls.Add( this.buttonReplaceBrowse );
 			this.replaceTab.Controls.Add( this.textReplaceProgress );
 			this.replaceTab.Controls.Add( this.groupReplaceOptions );
 			this.replaceTab.Controls.Add( this.labelReplaceLookIn );
 			this.replaceTab.Controls.Add( this.labelReplaceFindWhat );
 			this.replaceTab.Controls.Add( this.buttonReplace );
+			this.replaceTab.Controls.Add( this.textReplaceSearchPattern );
+			this.replaceTab.Controls.Add( this.textReplaceSearchPath );
 			this.replaceTab.Location = new System.Drawing.Point( 4, 22 );
 			this.replaceTab.Name = "replaceTab";
 			this.replaceTab.Padding = new System.Windows.Forms.Padding( 3 );
 			this.replaceTab.Size = new System.Drawing.Size( 442, 305 );
 			this.replaceTab.TabIndex = 1;
 			this.replaceTab.Text = "Replace";
-			this.replaceTab.UseVisualStyleBackColor = true;
 			// 
 			// labelReplaceWith
 			// 
@@ -423,7 +428,7 @@ namespace FindInFiles
 			this.labelReplaceWith.Location = new System.Drawing.Point( 4, 46 );
 			this.labelReplaceWith.Name = "labelReplaceWith";
 			this.labelReplaceWith.Size = new System.Drawing.Size( 72, 13 );
-			this.labelReplaceWith.TabIndex = 36;
+			this.labelReplaceWith.TabIndex = 2;
 			this.labelReplaceWith.Text = "&Replace with:";
 			// 
 			// textReplaceProgress
@@ -473,7 +478,7 @@ namespace FindInFiles
 			this.labelReplaceLookIn.Location = new System.Drawing.Point( 4, 91 );
 			this.labelReplaceLookIn.Name = "labelReplaceLookIn";
 			this.labelReplaceLookIn.Size = new System.Drawing.Size( 45, 13 );
-			this.labelReplaceLookIn.TabIndex = 26;
+			this.labelReplaceLookIn.TabIndex = 4;
 			this.labelReplaceLookIn.Text = "&Look in:";
 			// 
 			// labelReplaceFindWhat
@@ -482,7 +487,7 @@ namespace FindInFiles
 			this.labelReplaceFindWhat.Location = new System.Drawing.Point( 4, 5 );
 			this.labelReplaceFindWhat.Name = "labelReplaceFindWhat";
 			this.labelReplaceFindWhat.Size = new System.Drawing.Size( 56, 13 );
-			this.labelReplaceFindWhat.TabIndex = 24;
+			this.labelReplaceFindWhat.TabIndex = 0;
 			this.labelReplaceFindWhat.Text = "Fi&nd what:";
 			// 
 			// buttonReplace
@@ -490,7 +495,7 @@ namespace FindInFiles
 			this.buttonReplace.Location = new System.Drawing.Point( 249, 276 );
 			this.buttonReplace.Name = "buttonReplace";
 			this.buttonReplace.Size = new System.Drawing.Size( 190, 23 );
-			this.buttonReplace.TabIndex = 32;
+			this.buttonReplace.TabIndex = 10;
 			this.buttonReplace.Text = "Replace &All";
 			this.buttonReplace.UseVisualStyleBackColor = true;
 			this.buttonReplace.Click += new System.EventHandler( this.OnButtonReplace_Click );
