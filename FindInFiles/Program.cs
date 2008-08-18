@@ -12,9 +12,11 @@ namespace FindInFiles
 		[STAThread]
 		static void Main()
 		{
+			bool startInReplaceMode = (Environment.CommandLine.IndexOf( "replace", StringComparison.InvariantCultureIgnoreCase ) != -1);
+
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new FindForm());
+			Application.Run( new FindForm( startInReplaceMode ) );
 		}
 	}
 }

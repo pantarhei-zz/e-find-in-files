@@ -14,22 +14,40 @@ using System.Diagnostics;
 
 namespace FindInFiles
 {
-	public delegate void Func();
-	public delegate void Func<T>( T obj );
+	public delegate TResult Func<TResult>();
+	public delegate TResult Func<T, TResult>( T arg );
+	public delegate TResult Func<T1, T2, TResult>( T1 arg1, T2 arg2 );
+	public delegate TResult Func<T1, T2, T3, TResult>( T1 arg1, T2 arg2, T3 arg3 );
+	public delegate TResult Func<T1, T2, T3, T4, TResult>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 );
+
+	public delegate void Action();
+	// Action<T> is already part of the base framework
+	public delegate void Action<T1, T2>( T1 arg1, T2 arg2 );
+	public delegate void Action<T1, T2, T3>( T1 arg1, T2 arg2, T3 arg3 );
+	public delegate void Action<T1, T2, T3, T4>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 );
 
 	public partial class FindForm : Form
 	{
 		private readonly ComboBoxHistory SearchPathHistory;
 		private readonly ComboBoxHistory SearchPatternHistory;
+		private readonly ComboBoxHistory ReplaceWithHistory;
 		private readonly ComboBoxHistory SearchExtensionsHistory;
 		private readonly ComboBoxHistory DirectoryExcludesHistory;
 
-		public FindForm()
+		private readonly bool StartInReplaceMode;
+
+		private const int FIND_HEIGHT = 336;
+		private const int REPLACE_HEIGHT = 356;
+
+		public FindForm( bool startInReplaceMode )
 		{
+			StartInReplaceMode = startInReplaceMode;
+
 			InitializeComponent();
 
 			SearchPathHistory        = new ComboBoxHistory( "textSearchPath", textSearchPath );
 			SearchPatternHistory     = new ComboBoxHistory( "textSearchPattern", textSearchPattern );
+			ReplaceWithHistory       = new ComboBoxHistory( "textReplaceWith", textReplaceWith );
 			SearchExtensionsHistory  = new ComboBoxHistory( "textSearchExtensions", textSearchExtensions );
 			DirectoryExcludesHistory = new ComboBoxHistory( "textDirectoryExcludes", textDirectoryExcludes );
 		}
@@ -44,7 +62,17 @@ namespace FindInFiles
 				this.textProgress.Text = txt;
 		}
 
-		public void SafeInvoke( Func fn )
+		public void SetReplaceProgressText( string txt )
+		{
+			Debug.Assert( txt != null );
+
+			if( txt.Length > 40 )
+				this.textReplaceProgress.Text = "..." + txt.Substring( txt.Length - 37, 37 );
+			else
+				this.textReplaceProgress.Text = txt;
+		}
+
+		public void SafeInvoke( Action fn )
 		{
 			Debug.Assert( fn != null );
 
@@ -59,9 +87,16 @@ namespace FindInFiles
 
 		private void OnButtonFind_Click( object sender, EventArgs e )
 		{
+			// if the user presses the enter key, this fires even though the tab is wrong
+			if( tabControl.SelectedTab == replaceTab )
+			{
+				OnButtonReplace_Click( sender, e );
+				return;
+			}
+
 			SavePrefsToRegistry();
 
-			FindOptions options = new FindOptions(
+			var options = new FindOptions(
 				textSearchPath.Text,
 				textSearchPattern.Text,
 				checkMatchCase.Checked,
@@ -72,13 +107,38 @@ namespace FindInFiles
 			buttonFind.Enabled = false;
 
 			var finder = new Finder( options );
-			finder.ScanningFile += ( text ) => {
-				SafeInvoke( () => SetProgressText( text ) );
-			};
+			finder.ScanningFile += ( text ) => SafeInvoke( () => SetProgressText( text ) );
 
 			// Do the find in another thread
-			var worker = (Func<Finder>)FindWorker;
-			worker.BeginInvoke( finder, null, null );
+			var b = new BackgroundWorker();
+			b.DoWork += ( ws, we ) => FindWorker( finder );
+
+			b.RunWorkerAsync();
+		}
+
+		private void OnButtonReplace_Click( object sender, EventArgs e )
+		{
+			SavePrefsToRegistry();
+
+			var options = new FindOptions(
+				textSearchPath.Text,
+				textSearchPattern.Text,
+				textReplaceWith.Text, // aha
+				checkMatchCase.Checked,
+				checkUseRegex.Checked,
+				textSearchExtensions.Text,
+				textDirectoryExcludes.Text );
+
+			buttonFind.Enabled = false;
+
+			var finder = new Finder( options );
+			finder.ScanningFile += ( text ) => SafeInvoke( () => SetReplaceProgressText( text ) );
+
+			// Do the find in another thread
+			var b = new BackgroundWorker();
+			b.DoWork += ( ws, we ) => FindWorker( finder );
+
+			b.RunWorkerAsync();
 		}
 
 		private void FindWorker( Finder finder )
@@ -112,11 +172,30 @@ namespace FindInFiles
 
 		private void OnThis_Load( object sender, EventArgs e )
 		{
+			// link the controls
+
+			checkUseRegex.Target = checkReplaceUseRegex;
+			checkMatchCase.Target = checkReplaceMatchCase;
+
+			textSearchPattern.Target = textReplaceSearchPattern;
+			textSearchPath.Target = textReplaceSearchPath;
+			textSearchExtensions.Target = textReplaceSearchExtensions;
+			textDirectoryExcludes.Target = textReplaceDirectoryExcludes;
+
+			// load prefs from registry
+
 			LoadPrefsFromRegistry();
 			LoadSelectedText();
 			LoadDefaults();
 
 			OnParamsChanged( this, null );
+
+			if( StartInReplaceMode )
+				tabControl.SelectedTab = replaceTab;
+			else
+				tabControl.SelectedTab = findTab;
+
+			OnTabChanged( this, null );
 		}
 
 		private void OnThis_Closing( object sender, FormClosingEventArgs e )
@@ -253,16 +332,13 @@ namespace FindInFiles
 
 		private void LoadDefaults()
 		{
-			if( textSearchPattern.Text.Length < 1 )
+			if( textSearchPattern.Text.Length < 1 || textReplaceSearchPattern.Text.Length < 1 )
 				UseCurrentWord_Click( null, null );
 
-			if( textSearchPath.Text.Length < 1 )
+			if( textSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1 )
 				UseProjectDirectory_Click( null, null );
 
-			if( textSearchPath.Text.Length < 1 )
-				UseCurrentDirectory_Click( null, null );
-
-			if( textSearchExtensions.Text.Length < 1 )
+			if( textSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1 )
 				textSearchExtensions.Text = "*.*";
 		}
 
@@ -279,6 +355,21 @@ namespace FindInFiles
 		{
 			textSearchPattern.Select( 0, textSearchPattern.Text.Length );
 			textSearchPattern.Focus();
+		}
+
+		private void OnTabChanged( object sender, EventArgs e )
+		{
+			if( tabControl.SelectedTab == replaceTab )
+			{
+				this.Height = REPLACE_HEIGHT;
+				tabControl.Height = REPLACE_HEIGHT - 25;
+				replaceTab.Height = 305;
+			}
+			else
+			{
+				this.Height = FIND_HEIGHT;
+				tabControl.Height = FIND_HEIGHT - 25;
+			}
 		}
 	}
 }

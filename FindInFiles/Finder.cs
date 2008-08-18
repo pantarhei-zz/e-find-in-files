@@ -15,20 +15,23 @@ namespace FindInFiles
 	{
 		public readonly string SearchPath;
 		public readonly string SearchPattern;
+		public readonly string ReplaceWith;
 		public readonly bool MatchCase;
 		public readonly bool UseRegex;
 		public readonly string[] SearchExtensions;
 		public readonly string[] DirectoryExcludes;
 
-		public FindOptions( string searchPath, string searchPattern, bool matchCase, bool useRegex, string[] searchExtensions, string[] directoryExcludes )
+		protected FindOptions( string searchPath, string searchPattern, string replaceWith, bool matchCase, bool useRegex, string[] searchExtensions, string[] directoryExcludes )
 		{
 			Debug.Assert( searchPath != null );
 			Debug.Assert( searchPattern != null );
+			// replaceWith will be null if we're just searching
 			Debug.Assert( searchExtensions != null );
 			Debug.Assert( directoryExcludes != null );
 
 			SearchPath = Util.CleanAndConvertCygpath( searchPath );
 			SearchPattern = searchPattern;
+			ReplaceWith = replaceWith;
 			MatchCase = matchCase;
 			UseRegex = useRegex;
 			SearchExtensions = searchExtensions;
@@ -36,7 +39,11 @@ namespace FindInFiles
 		}
 
 		public FindOptions( string searchPath, string searchPattern, bool matchCase, bool useRegex, string searchExtensions, string directoryExcludes )
-			: this( searchPath, searchPattern, matchCase, useRegex, ParseSearchExtensions(searchExtensions), ParseDirectoryExcludes( directoryExcludes ) )
+			: this( searchPath, searchPattern, null, matchCase, useRegex, ParseSearchExtensions( searchExtensions ), ParseDirectoryExcludes( directoryExcludes ) )
+		{ }
+
+		public FindOptions( string searchPath, string searchPattern, string replaceWith, bool matchCase, bool useRegex, string searchExtensions, string directoryExcludes )
+			: this( searchPath, searchPattern, replaceWith, matchCase, useRegex, ParseSearchExtensions( searchExtensions ), ParseDirectoryExcludes( directoryExcludes ) )
 		{ }
 
 		public static string[] ParseSearchExtensions(string e)
@@ -195,35 +202,138 @@ namespace FindInFiles
 			return ret;
 		}
 
-		private void PrepareSearch( out Regex searchRegex, out string searchString )
+		private FindResults FindInFiles( ICollection<string> files )
 		{
-			searchRegex = null;
-			searchString = null;
+			var searcher = new Searcher( Options );
+			return EachLineInFiles( files, (lineNumber, lineText) => searcher.MatchLine( lineText ) );
+		}
 
-			if( Options.UseRegex )
+		private FindResults ReplaceInFiles( ICollection<string> files )
+		{
+			var searcher = new Searcher( Options );
+			return EachLineInFiles( files, ( lineNumber, lineText ) => searcher.MatchLine( lineText ), searcher.Replace );
+		}
+
+		public FindResults Find()
+		{
+			FireScanningFile( "Scanning..." );
+
+			var filesToSearch = MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes );
+
+			return FindInFiles( filesToSearch );
+		}
+
+		public FindResults Replace()
+		{
+			FireScanningFile( "Scanning..." );
+
+			var filesToSearch = MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes );
+
+			return ReplaceInFiles( filesToSearch );
+		}
+
+		private class Searcher
+		{
+			private readonly Regex searchRegex;
+
+			private readonly string searchPattern;
+			private readonly StringComparison stringComparisonType;
+
+			private readonly string replaceWith;
+
+			public Searcher( FindOptions options )
 			{
-				var regexOptions = RegexOptions.Compiled;
-				if( !Options.MatchCase )
-					regexOptions |= RegexOptions.IgnoreCase;
+				if( options.UseRegex )
+				{
+					var regexOptions = RegexOptions.Compiled;
+					if( !options.MatchCase )
+						regexOptions |= RegexOptions.IgnoreCase;
 
-				searchRegex = new Regex( Options.SearchPattern, regexOptions );
+					searchRegex = new Regex( options.SearchPattern, regexOptions );
+				}
+				else
+				{
+					searchPattern = options.SearchPattern;
+					stringComparisonType = options.MatchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+				}
+
+				replaceWith = options.ReplaceWith;
 			}
-			else
+
+			public bool MatchLine( string lineText )
 			{
-				searchString = Options.SearchPattern;
+				return ((searchRegex != null && searchRegex.IsMatch( lineText )) ||
+					(searchPattern != null && lineText.IndexOf( searchPattern, stringComparisonType ) > -1));
+			}
+
+			public string Replace( string lineText )
+			{
+				if( searchRegex != null )
+				{
+					return searchRegex.Replace( lineText, replaceWith );
+				}
+				else if( searchPattern != null )
+				{
+					return FancyReplace( lineText, searchPattern, replaceWith, stringComparisonType );
+				}
+				else
+				{
+					throw new InvalidOperationException( "Shouldn't get here" );
+				}
+			}
+
+			// Graciously borrowed from
+			// http://www.codeproject.com/KB/string/fastestcscaseinsstringrep.aspx (in the comments)
+			// copyright and credit goes to Michael Epner
+			private static string FancyReplace( string original, string pattern, string replacement, StringComparison comparisonType )
+			{
+				if (original == null)
+				{
+					return null;
+				}
+
+				if (String.IsNullOrEmpty(pattern))
+				{
+					return original;
+				}
+
+				int lenPattern = pattern.Length;
+				int idxPattern = -1;
+				int idxLast = 0;
+	            
+				StringBuilder result = new StringBuilder();
+
+				while (true)
+				{
+					idxPattern = original.IndexOf(pattern, idxPattern + 1, comparisonType);
+
+					if (idxPattern < 0)
+					{
+						result.Append(original, idxLast, original.Length - idxLast);
+	                    
+						break;
+					}
+
+					result.Append(original, idxLast, idxPattern - idxLast);
+					result.Append(replacement);
+
+					idxLast = idxPattern + lenPattern;
+				}
+
+				return result.ToString();
 			}
 		}
 
-		private FindResults FindInFiles( ICollection<string> files )
+		private FindResults EachLineInFiles( ICollection<string> files, Func<int, string, bool> lineMatcher )
+		{
+			return EachLineInFiles( files, lineMatcher, null );
+		}
+
+		private FindResults EachLineInFiles( ICollection<string> files, Func<int, string, bool> lineMatcher, Func<string, string> lineReplacer )
 		{
 			DateTime startedAt = DateTime.Now;
 			int numFilesMatched = 0;
 			int numLinesMatched = 0;
-
-			Regex searchRegex;
-			string searchPattern;
-			PrepareSearch( out searchRegex, out searchPattern );
-			var stringComparison = Options.MatchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
 
 			var matches = new List<FindResult>();
 			foreach( string file in files )
@@ -235,16 +345,20 @@ namespace FindInFiles
 				// Scan each line and add a match if it matched
 				for( int lineNumber = 0; lineNumber < lines.Length; ++lineNumber )
 				{
-					string lineText = lines[lineNumber];
-
-					if( (searchRegex != null && searchRegex.IsMatch(lineText)) ||
-						(searchPattern != null && lineText.IndexOf(searchPattern, stringComparison) > -1) )
+					if( lineMatcher( lineNumber, lines[lineNumber] ) )
 					{
-						++numLinesMatched;
 						fileMatches = true;
+						++numLinesMatched;
+
+						if( lineReplacer != null )
+							lines[lineNumber] = lineReplacer( lines[lineNumber] );
+
+						// show the replaced text
 						matches.Add( new FindResult( file, lineNumber + 1, lines[lineNumber] ) );
 					}
 				}
+				if( lineReplacer != null ) // OH NO
+					File.WriteAllLines( file, lines );
 
 				if( fileMatches )
 					++numFilesMatched;
@@ -258,15 +372,7 @@ namespace FindInFiles
 				numFilesMatched,
 				numLinesMatched,
 				matches );
-		}
 
-		public FindResults Find()
-		{
-			FireScanningFile( "Scanning..." );
-
-			var filesToSearch = MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes );
-
-			return FindInFiles( filesToSearch );
 		}
 	}
 }

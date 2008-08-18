@@ -45,6 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\LinkedCheckBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\LinkedComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Finder.cs" />
     <Compile Include="FindForm.cs">
       <SubType>Form</SubType>
