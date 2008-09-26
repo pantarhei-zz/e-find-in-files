@@ -77,21 +77,23 @@ namespace FindInFiles
 	/// <summary>
 	/// The collection and summary of results
 	/// </summary>
-	class FindResults
+	class FindResults : IEnumerable<String>
 	{
 		public readonly string SearchPattern;
 		public readonly string SearchPath;
+		public readonly string ReplaceString;
 		public readonly TimeSpan TimeTaken;
 		public readonly int NumFilesSearched;
 		public readonly int NumFilesMatched;
 		public readonly int NumLinesMatched;
 
-		public readonly List<FindResult> Matches;
+		public readonly IEnumerable<FindResult> Matches;
 
-		public FindResults( string searchPattern, string searchPath, TimeSpan timeTaken, int numFilesSearched, int numFilesMatched, int numLinesMatched, List<FindResult> matches )
+		public FindResults( string searchPattern, string searchPath, string replaceString, TimeSpan timeTaken, int numFilesSearched, int numFilesMatched, int numLinesMatched, IEnumerable<FindResult> matches )
 		{
 			SearchPattern = searchPattern;
 			SearchPath = searchPath + (searchPath.EndsWith("\\", StringComparison.CurrentCultureIgnoreCase) ? "" : "\\"); // make sure it always ends with a \ so the output format is pretty
+			ReplaceString = replaceString;
 			
 			TimeTaken = timeTaken;
 			NumFilesSearched = numFilesSearched;
@@ -108,6 +110,11 @@ namespace FindInFiles
 				Replace( "'", "&#39;" );
 		}
 
+		private static string HighlightMatch( string line, string match )
+		{
+			return line.Replace( match, "<span style='background-color:yellow'>" + match + "</span>" );
+		}
+
 		private static string MakeShortPath( string basePath, string fullPath )
 		{
 			if( fullPath.IndexOf( basePath, StringComparison.CurrentCultureIgnoreCase ) != -1 )
@@ -116,28 +123,34 @@ namespace FindInFiles
 				return fullPath;
 		}
 
-		public override string ToString()
+		public IEnumerator<string> GetEnumerator()
 		{
-			var str = new StringBuilder(Matches.Count * 60); //guesstimate 60 characters per line for buffer size
+			yield return "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>";
+			yield return "<pre>";
 
-			str.Append( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
-			str.Append( "<pre>" );
-
-			foreach (FindResult match in Matches)
+			foreach( var match in Matches )
 			{
-				str.AppendFormat( CultureInfo.CurrentCulture,
-					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>\n",
-					match.File, match.LineNumber, MakeShortPath( SearchPath, match.File ), EscapeHtml( match.LineText ) );
+				yield return String.Format( CultureInfo.CurrentCulture,
+					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
+					match.File, 
+					match.LineNumber, 
+					MakeShortPath( SearchPath, match.File ), 
+					HighlightMatch( EscapeHtml( match.LineText ), ReplaceString ?? SearchPattern ) 
+				);
 			}
 
-			str.AppendLine( "--------------------------------------------------------------------------------" );
+			yield return "--------------------------------------------------------------------------------";
 
-			str.AppendFormat( CultureInfo.CurrentCulture, "Searched For '{0}' in {1}\n", SearchPattern, SearchPath );
-			str.AppendFormat( CultureInfo.CurrentCulture, "{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s\n",
+			yield return String.Format( CultureInfo.CurrentCulture, "Searched For '{0}' in {1}", SearchPattern, SearchPath );
+			yield return String.Format( CultureInfo.CurrentCulture, "{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s",
 				NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds );
 
-			str.AppendLine( "</pre>" );
-			return str.ToString();
+			yield return "</pre>";
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<String>) this).GetEnumerator();
 		}
 	}
 
@@ -163,7 +176,7 @@ namespace FindInFiles
 				ScanningFile( text );
 		}
 
-		private static List<string> MakeFileList( string searchPath, string[] searchExtensions, string[] directoryExcludes )
+		private static IEnumerable<string> MakeFileList( string searchPath, string[] searchExtensions, string[] directoryExcludes )
 		{
 			Debug.Assert( searchPath != null );
 			Debug.Assert( searchExtensions != null );
@@ -175,12 +188,11 @@ namespace FindInFiles
 			if( !Directory.Exists( searchPath ) )
 				throw new ArgumentException( "Directory does not exist" );
 
-			var ret = new List<string>();
-
 			// check for *.* (*'s have been stripped out so it will just be a .)
 			if( Array.Exists( searchExtensions, ext => ext == "." ) )
 			{
-				ret.AddRange( Directory.GetFiles( searchPath ).Map( file => Path.Combine( searchPath, file ) ) );
+				foreach( var f in Directory.GetFiles( searchPath ).Map( file => Path.Combine( searchPath, file ) ) )
+					yield return f;
 			}
 			else
 			{
@@ -188,27 +200,28 @@ namespace FindInFiles
 				{
 					if( searchExtensions.Length < 1 ||
 						(Array.Exists( searchExtensions, ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase) )) )
-						ret.Add( Path.Combine( searchPath, file ) );
+						yield return Path.Combine( searchPath, file );
 				}
 			}
 
 			foreach( string dir in Directory.GetDirectories( searchPath ) )
 			{
 				if( directoryExcludes.Length < 1 ||
-					(!Array.Exists( directoryExcludes, dx => String.Compare(Path.GetFileName(dir), dx, StringComparison.CurrentCultureIgnoreCase) == 0 )))
-					ret.AddRange( MakeFileList( dir, searchExtensions, directoryExcludes ) );
+					(!Array.Exists( directoryExcludes, dx => String.Compare( Path.GetFileName( dir ), dx, StringComparison.CurrentCultureIgnoreCase ) == 0 )) )
+				{
+					foreach( var f in MakeFileList( dir, searchExtensions, directoryExcludes ) )
+						yield return f;
+				}
 			}
-
-			return ret;
 		}
 
-		private FindResults FindInFiles( ICollection<string> files )
+		private FindResults FindInFiles( IEnumerable<string> files )
 		{
 			var searcher = new Searcher( Options );
 			return EachLineInFiles( files, (lineNumber, lineText) => searcher.MatchLine( lineText ) );
 		}
 
-		private FindResults ReplaceInFiles( ICollection<string> files )
+		private FindResults ReplaceInFiles( IEnumerable<string> files )
 		{
 			var searcher = new Searcher( Options );
 			return EachLineInFiles( files, ( lineNumber, lineText ) => searcher.MatchLine( lineText ), searcher.Replace );
@@ -216,20 +229,12 @@ namespace FindInFiles
 
 		public FindResults Find()
 		{
-			FireScanningFile( "Scanning..." );
-
-			var filesToSearch = MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes );
-
-			return FindInFiles( filesToSearch );
+			return FindInFiles( MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes ) );
 		}
 
 		public FindResults Replace()
 		{
-			FireScanningFile( "Scanning..." );
-
-			var filesToSearch = MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes );
-
-			return ReplaceInFiles( filesToSearch );
+			return ReplaceInFiles( MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes ) );
 		}
 
 		private class Searcher
@@ -324,20 +329,22 @@ namespace FindInFiles
 			}
 		}
 
-		private FindResults EachLineInFiles( ICollection<string> files, Func<int, string, bool> lineMatcher )
+		private FindResults EachLineInFiles( IEnumerable<string> files, Func<int, string, bool> lineMatcher )
 		{
 			return EachLineInFiles( files, lineMatcher, null );
 		}
 
-		private FindResults EachLineInFiles( ICollection<string> files, Func<int, string, bool> lineMatcher, Func<string, string> lineReplacer )
+		private FindResults EachLineInFiles( IEnumerable<string> files, Func<int, string, bool> lineMatcher, Func<string, string> lineReplacer )
 		{
 			DateTime startedAt = DateTime.Now;
 			int numFilesMatched = 0;
 			int numLinesMatched = 0;
 
+			var filecount = 0;
 			var matches = new List<FindResult>();
 			foreach( string file in files )
 			{
+				filecount++;
 				FireScanningFile( file );
 				bool fileMatches = false;
 
@@ -367,8 +374,9 @@ namespace FindInFiles
 			return new FindResults(
 				Options.SearchPattern,
 				Options.SearchPath,
+				Options.ReplaceWith,
 				DateTime.Now - startedAt,
-				files.Count,
+				filecount,
 				numFilesMatched,
 				numLinesMatched,
 				matches );

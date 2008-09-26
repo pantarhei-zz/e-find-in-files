@@ -85,6 +85,16 @@ namespace FindInFiles
 			/* swallow these as the form is going away */
 		}
 
+		private bool ButtonsEnabled
+		{
+			set
+			{
+				buttonFind.Enabled = 
+				buttonReplace.Enabled =
+					value;
+			}
+		}
+
 		private void OnButtonFind_Click( object sender, EventArgs e )
 		{
 			// if the user presses the enter key, this fires even though the tab is wrong
@@ -104,7 +114,7 @@ namespace FindInFiles
 				textSearchExtensions.Text,
 				textDirectoryExcludes.Text );
 
-			buttonFind.Enabled = false;
+			ButtonsEnabled = false;
 
 			var finder = new Finder( options );
 			finder.ScanningFile += ( text ) => SafeInvoke( () => SetProgressText( text ) );
@@ -112,7 +122,14 @@ namespace FindInFiles
 			// Do the find in another thread
 			var b = new BackgroundWorker();
 			b.DoWork += ( ws, we ) => FindWorker( finder );
-
+			b.RunWorkerCompleted += ( ws, we ) => {
+				SafeInvoke( () => {
+					OnParamsChanged( null, null );
+					ButtonsEnabled = true;
+					SetProgressText( "" );
+					Close();
+				} );
+			};
 			b.RunWorkerAsync();
 		}
 
@@ -137,7 +154,14 @@ namespace FindInFiles
 			// Do the find in another thread
 			var b = new BackgroundWorker();
 			b.DoWork += ( ws, we ) => FindWorker( finder );
-
+			b.RunWorkerCompleted += ( ws, we ) => {
+				SafeInvoke( () => {
+					OnParamsChanged( null, null );
+					ButtonsEnabled = true;
+					SetProgressText( "" );
+					Close();
+				} );
+			};
 			b.RunWorkerAsync();
 		}
 
@@ -147,18 +171,11 @@ namespace FindInFiles
 
 			try
 			{
-				var results = finder.Find();
-
+				// now that the find is finished
 				SafeInvoke( () => SetProgressText( "..." ) );
 
-				Console.Write( results.ToString() );
-
-				SafeInvoke( () => {
-					OnParamsChanged( null, null );
-					buttonFind.Enabled = true;
-					SetProgressText( "" );
-					Close();
-				} );
+				foreach( string line in finder.Find() )
+					Console.WriteLine( line );
 			}
 			catch( ArgumentException ex )
 			{
