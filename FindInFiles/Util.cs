@@ -15,13 +15,13 @@ namespace FindInFiles
 {
 	public static class Util
 	{
-		/// <summary>Lazy-evaluated version of Array.ConvertAll which works over any IEnumerable</summary>
+		/// <summary>Borrow Select from LINQ</summary>
 		/// <typeparam name="TInput">Type of input item</typeparam>
 		/// <typeparam name="TOutput">Type of output item</typeparam>
 		/// <param name="collection">Collection of input items</param>
 		/// <param name="converter">Delegate to use to do the conversion</param>
 		/// <returns>Collection of output items</returns>
-		public static IEnumerable<TOutput> Map<TInput, TOutput>( this IEnumerable<TInput> collection, Converter<TInput, TOutput> converter )
+		public static IEnumerable<TOutput> Select<TInput, TOutput>( this IEnumerable<TInput> collection, Converter<TInput, TOutput> converter )
 		{
 			foreach( TInput item in collection )
 				yield return converter( item );
@@ -75,6 +75,26 @@ namespace FindInFiles
 		public static string CleanAndConvertCygpath( string path )
 		{
 			return ConvertCygpath( CleanPath( path ) );
+		}
+
+		/// <summary>
+		/// Converts a single line of user-input search extensions into an array of sanitized extensions
+		/// </summary>
+		/// <param name="e">The user input file extensions</param>
+		/// <returns>Split and cleaned file extensions</returns>
+		public static string[] ParseSearchExtensions(string e)
+		{
+			return e.Replace("*", "").Replace(" ", "").Split(new[] { ',', ';' });
+		}
+
+		/// <summary>
+		/// Converts a single line of user-input directory exclusions into an array
+		/// </summary>
+		/// <param name="e">The user input directory exclusions</param>
+		/// <returns>Split and cleaned directory exclusions</returns>
+		public static string[] ParseDirectoryExcludes(string e)
+		{
+			return e.Split(new[] { ',', ';' });
 		}
 	}
 }

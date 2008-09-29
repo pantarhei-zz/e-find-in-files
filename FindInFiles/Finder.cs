@@ -9,51 +9,17 @@ using System.Globalization;
 namespace FindInFiles
 {
 	/// <summary>
-	/// Options for finding things
+	/// C# has no built in range type like ruby, so make one
 	/// </summary>
-	class FindOptions
+	/// <typeparam name="T">Numeric type the range is of (int, float, etc)</typeparam>
+	class Range<T> where T : IComparable<T>
 	{
-		public readonly string SearchPath;
-		public readonly string SearchPattern;
-		public readonly string ReplaceWith;
-		public readonly bool MatchCase;
-		public readonly bool UseRegex;
-		public readonly string[] SearchExtensions;
-		public readonly string[] DirectoryExcludes;
+		public readonly T Lower, Upper;
 
-		protected FindOptions( string searchPath, string searchPattern, string replaceWith, bool matchCase, bool useRegex, string[] searchExtensions, string[] directoryExcludes )
+		public Range(T lower, T upper)
 		{
-			Debug.Assert( searchPath != null );
-			Debug.Assert( searchPattern != null );
-			// replaceWith will be null if we're just searching
-			Debug.Assert( searchExtensions != null );
-			Debug.Assert( directoryExcludes != null );
-
-			SearchPath = Util.CleanAndConvertCygpath( searchPath );
-			SearchPattern = searchPattern;
-			ReplaceWith = replaceWith;
-			MatchCase = matchCase;
-			UseRegex = useRegex;
-			SearchExtensions = searchExtensions;
-			DirectoryExcludes = directoryExcludes;
-		}
-
-		public FindOptions( string searchPath, string searchPattern, bool matchCase, bool useRegex, string searchExtensions, string directoryExcludes )
-			: this( searchPath, searchPattern, null, matchCase, useRegex, ParseSearchExtensions( searchExtensions ), ParseDirectoryExcludes( directoryExcludes ) )
-		{ }
-
-		public FindOptions( string searchPath, string searchPattern, string replaceWith, bool matchCase, bool useRegex, string searchExtensions, string directoryExcludes )
-			: this( searchPath, searchPattern, replaceWith, matchCase, useRegex, ParseSearchExtensions( searchExtensions ), ParseDirectoryExcludes( directoryExcludes ) )
-		{ }
-
-		public static string[] ParseSearchExtensions(string e)
-		{
-			return e.Replace("*", "").Replace(" ", "").Split( new[]{ ',', ';' });
-		}
-
-		public static string[] ParseDirectoryExcludes(string e)
-		{
-			return e.Split( new[]{ ',', ';' } );
+			Lower = lower;
+			Upper = upper;
 		}
 	}
 
@@ -62,63 +28,95 @@ namespace FindInFiles
 	/// </summary>
 	class FindResult
 	{
-		public FindResult(string file, int lineNumber, string lineText)
-		{
-			File = file;
-			LineNumber = lineNumber;
-			LineText = lineText;
-		}
-
 		public readonly string File;
 		public readonly int LineNumber;
 		public readonly string LineText;
+		public readonly Range<int>[] CharactersMatched;
+
+		public FindResult(string file, int lineNumber, string lineText, params Range<int>[] charactersMatched)
+		{
+			Debug.Assert(file != null);
+			Debug.Assert(lineNumber != 0);
+			Debug.Assert(lineText != null);
+			Debug.Assert(charactersMatched != null);
+
+			File = file;
+			LineNumber = lineNumber;
+			LineText = lineText;
+			CharactersMatched = charactersMatched;
+		}
 	}
 
 	/// <summary>
-	/// The collection and summary of results
+	/// Converts the stream of incoming FindResults into strings (to be printed to stdout)
+	/// Will also add a header and footer
 	/// </summary>
-	class FindResults : IEnumerable<String>
+	class PrettyPrinter : IEnumerable<string>
 	{
-		public readonly string SearchPattern;
-		public readonly string SearchPath;
-		public readonly string ReplaceString;
+		public readonly string Pattern;
+		public readonly string Directory;
+		public readonly string ReplacedWith;
 		public readonly TimeSpan TimeTaken;
-		public readonly int NumFilesSearched;
-		public readonly int NumFilesMatched;
-		public readonly int NumLinesMatched;
-
 		public readonly IEnumerable<FindResult> Matches;
 
-		public FindResults( string searchPattern, string searchPath, string replaceString, TimeSpan timeTaken, int numFilesSearched, int numFilesMatched, int numLinesMatched, IEnumerable<FindResult> matches )
+		private int TotalFileCount;
+		private int MatchingFileCount;
+		private int MatchingLineCount;
+
+		public PrettyPrinter(string pattern, string directory, string replacedWith, TimeSpan timeTaken, IEnumerable<FindResult> matches)
 		{
-			SearchPattern = searchPattern;
-			SearchPath = searchPath + (searchPath.EndsWith("\\", StringComparison.CurrentCultureIgnoreCase) ? "" : "\\"); // make sure it always ends with a \ so the output format is pretty
-			ReplaceString = replaceString;
-			
-			TimeTaken = timeTaken;
-			NumFilesSearched = numFilesSearched;
-			NumFilesMatched = numFilesMatched;
-			NumLinesMatched = numLinesMatched;
+			Debug.Assert(pattern != null);
+			Debug.Assert(directory != null);
+			// if we are only searching, replacedWith is designed to be null
+			Debug.Assert(matches != null);
+
+			Pattern = pattern;
+			Directory = directory + (directory.EndsWith("\\", StringComparison.CurrentCultureIgnoreCase) ? "" : "\\"); // make sure it always ends with a \ so the output format is pretty
+			ReplacedWith = replacedWith;
 			Matches = matches;
+			TimeTaken = timeTaken;
 		}
 
-		private static string EscapeHtml( string x )
+		private static string EscapeHtml(string x)
 		{
 			return x.
-				Replace( "<", "&lt;" ).
-				Replace( ">", "&gt;" ).
-				Replace( "'", "&#39;" );
+				Replace("<", "&lt;").
+				Replace(">", "&gt;").
+				Replace("'", "&#39;");
 		}
 
-		private static string HighlightMatch( string line, string match )
+		/// <summary>
+		/// Returns a copy of line with HTML span tags inserted to hilight the character ranges defined by ranges
+		/// </summary>
+		/// <param name="line">The input text</param>
+		/// <param name="ranges">Character start/ends to surround in span tags</param>
+		/// <returns>A hilighted copy</returns>
+		private static string Highlight(string line, Range<int>[] ranges)
 		{
-			return line.Replace( match, "<span style='background-color:yellow'>" + match + "</span>" );
+			Debug.Assert(line != null);
+			Debug.Assert(ranges != null);
+
+			if(ranges.Length == 0)
+				return line;
+
+			var b = new StringBuilder();
+			int lastIndex = 0;
+			foreach (var r in ranges)
+			{
+				b.Append(line.Substring(lastIndex, r.Lower));
+				b.Append("<span style='background-color:yellow'>");
+				b.Append(line.Substring(r.Lower, r.Upper));
+				b.Append("</span>");
+
+				lastIndex = r.Upper;
+			}
+			return b.ToString();
 		}
 
-		private static string MakeShortPath( string basePath, string fullPath )
+		private static string MakeShortPath(string basePath, string fullPath)
 		{
-			if( fullPath.IndexOf( basePath, StringComparison.CurrentCultureIgnoreCase ) != -1 )
-				return fullPath.Substring( basePath.Length );
+			if (fullPath.IndexOf(basePath, StringComparison.CurrentCultureIgnoreCase) != -1)
+				return fullPath.Substring(basePath.Length);
 			else
 				return fullPath;
 		}
@@ -128,29 +126,29 @@ namespace FindInFiles
 			yield return "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>";
 			yield return "<pre>";
 
-			foreach( var match in Matches )
+			foreach (var match in Matches)
 			{
-				yield return String.Format( CultureInfo.CurrentCulture,
+				yield return String.Format(CultureInfo.CurrentCulture,
 					"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
-					match.File, 
-					match.LineNumber, 
-					MakeShortPath( SearchPath, match.File ), 
-					HighlightMatch( EscapeHtml( match.LineText ), ReplaceString ?? SearchPattern ) 
+					match.File,
+					match.LineNumber,
+					MakeShortPath(Directory, match.File),
+					Highlight(EscapeHtml(match.LineText), match.CharactersMatched)
 				);
 			}
 
 			yield return "--------------------------------------------------------------------------------";
 
-			yield return String.Format( CultureInfo.CurrentCulture, "Searched For '{0}' in {1}", SearchPattern, SearchPath );
-			yield return String.Format( CultureInfo.CurrentCulture, "{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s",
-				NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds );
+			yield return String.Format(CultureInfo.CurrentCulture, "Searched For '{0}' in {1}", Pattern, Directory);
+			//yield return String.Format(CultureInfo.CurrentCulture, "{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s",
+			//	NumLinesMatched, NumFilesMatched, NumFilesSearched, TimeTaken.TotalSeconds);
 
 			yield return "</pre>";
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
 		{
-			return ((IEnumerable<String>) this).GetEnumerator();
+			return ((IEnumerable<String>)this).GetEnumerator();
 		}
 	}
 
@@ -159,84 +157,102 @@ namespace FindInFiles
 	/// </summary>
 	class Finder
 	{
-		public readonly FindOptions Options;
-		public event ScanningFileCallback ScanningFile;
-			
+		public readonly FindLineOptions FindLineOptions;
+		public readonly FindFileOptions FindFileOptions;
+
+		public event ScanningFileCallback FileScanned;
+
 		public delegate void ScanningFileCallback(string text);
 
-		public Finder( FindOptions options )
+		public Finder(FindFileOptions findFileOptions, FindLineOptions findLineOptions)
 		{
-			Debug.Assert( options != null );
-			Options = options;
+			Debug.Assert(findFileOptions != null);
+			Debug.Assert(findLineOptions != null);
+
+			FindFileOptions = options;
 		}
 
-		private void FireScanningFile( string text )
+		private void FireFileScanned(string text)
 		{
-			if( ScanningFile != null )
-				ScanningFile( text );
+			if (FileScanned != null)
+				FileScanned(text);
 		}
 
-		private static IEnumerable<string> MakeFileList( string searchPath, string[] searchExtensions, string[] directoryExcludes )
+		/// <summary>
+		/// Stream of matching files which match options
+		/// </summary>
+		/// <param name="options">Options for where to look and what to look at</param>
+		/// <returns>A stream of fully qualified file paths which match</returns>
+		private static IEnumerable<string> FindMatchingFiles(FindFileOptions options)
 		{
-			Debug.Assert( searchPath != null );
-			Debug.Assert( searchExtensions != null );
-			Debug.Assert( directoryExcludes != null );
+			return FindMatchingFiles(options.Directory, options);
+		}
 
-			if( searchPath.Length < 1 )
-				throw new ArgumentException( "Directory cannot be empty", searchPath );
+		// Internal actual recursive worker function
+		private static IEnumerable<string> FindMatchingFiles(string directory, FindFileOptions options)
+		{
+			Debug.Assert(directory != null);
+			Debug.Assert(options != null);
 
-			if( !Directory.Exists( searchPath ) )
-				throw new ArgumentException( "Directory does not exist" );
+			if (options.Directory.Length < 1)
+				throw new ArgumentException("Directory cannot be empty", directory);
+
+			if (!Directory.Exists(directory))
+				throw new ArgumentException("Directory does not exist");
 
 			// check for *.* (*'s have been stripped out so it will just be a .)
-			if( Array.Exists( searchExtensions, ext => ext == "." ) )
+			if (Array.Exists(options.FileExtensions, ext => ext == "."))
 			{
-				foreach( var f in Directory.GetFiles( searchPath ).Map( file => Path.Combine( searchPath, file ) ) )
+				foreach (var f in Directory.GetFiles(directory).Select(file => Path.Combine(searchPath, file)))
 					yield return f;
 			}
 			else
 			{
-				foreach( string file in Directory.GetFiles( searchPath ) )
+				foreach (string file in Directory.GetFiles(directory))
 				{
-					if( searchExtensions.Length < 1 ||
-						(Array.Exists( searchExtensions, ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase) )) )
-						yield return Path.Combine( searchPath, file );
+					if (options.FileExtensions.Length < 1 ||
+						(Array.Exists(options.FileExtensions, ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase))))
+						yield return Path.Combine(directory, file);
 				}
 			}
 
-			foreach( string dir in Directory.GetDirectories( searchPath ) )
+			foreach (string dir in Directory.GetDirectories(directory))
 			{
-				if( directoryExcludes.Length < 1 ||
-					(!Array.Exists( directoryExcludes, dx => String.Compare( Path.GetFileName( dir ), dx, StringComparison.CurrentCultureIgnoreCase ) == 0 )) )
+				if (options.DirectoryExclusions.Length < 1 ||
+					(!Array.Exists(options.DirectoryExclusions, dx => String.Compare(Path.GetFileName(dir), dx, StringComparison.CurrentCultureIgnoreCase) == 0)))
 				{
-					foreach( var f in MakeFileList( dir, searchExtensions, directoryExcludes ) )
+					foreach (var f in FindMatchingFiles(dir, options))
 						yield return f;
 				}
 			}
 		}
 
-		private FindResults FindInFiles( IEnumerable<string> files )
+		public IEnumerable<string> Find()
 		{
-			var searcher = new Searcher( Options );
-			return EachLineInFiles( files, (lineNumber, lineText) => searcher.MatchLine( lineText ) );
+			var searcher = new Searcher(Options);
+			foreach (var match in MatchInFiles(files, (lineNumber, lineText) => searcher.MatchLine(lineText)))
+			{
+
+			}
+
+			return MatchInFiles(
+				FindMatchingFiles(Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes),
+				(lineNumber, lineText) => searcher.MatchLine(lineText));
 		}
 
-		private FindResults ReplaceInFiles( IEnumerable<string> files )
+		public IEnumerable<string> Replace()
 		{
-			var searcher = new Searcher( Options );
-			return EachLineInFiles( files, ( lineNumber, lineText ) => searcher.MatchLine( lineText ), searcher.Replace );
+			var searcher = new Searcher(Options);
+
+			return MatchInFiles(
+				FindMatchingFiles(Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes),
+				(lineNumber, lineText) => searcher.MatchLine(lineText), searcher.Replace);
 		}
 
-		public FindResults Find()
-		{
-			return FindInFiles( MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes ) );
-		}
-
-		public FindResults Replace()
-		{
-			return ReplaceInFiles( MakeFileList( Options.SearchPath, Options.SearchExtensions, Options.DirectoryExcludes ) );
-		}
-
+		/// <summary>
+		/// Abstracts a search and replace operation, so we can treat plain text and regex searches
+		/// in the same manner
+		/// </summary>
 		private class Searcher
 		{
 			private readonly Regex searchRegex;
@@ -246,15 +262,15 @@ namespace FindInFiles
 
 			private readonly string replaceWith;
 
-			public Searcher( FindOptions options )
+			public Searcher(FindLineOptions options)
 			{
-				if( options.UseRegex )
+				if (options.UseRegex)
 				{
 					var regexOptions = RegexOptions.Compiled;
-					if( !options.MatchCase )
+					if (!options.MatchCase)
 						regexOptions |= RegexOptions.IgnoreCase;
 
-					searchRegex = new Regex( options.SearchPattern, regexOptions );
+					searchRegex = new Regex(options.SearchPattern, regexOptions);
 				}
 				else
 				{
@@ -265,32 +281,32 @@ namespace FindInFiles
 				replaceWith = options.ReplaceWith;
 			}
 
-			public bool MatchLine( string lineText )
+			public bool MatchLine(string lineText)
 			{
-				return ((searchRegex != null && searchRegex.IsMatch( lineText )) ||
-					(searchPattern != null && lineText.IndexOf( searchPattern, stringComparisonType ) > -1));
+				return ((searchRegex != null && searchRegex.IsMatch(lineText)) ||
+					(searchPattern != null && lineText.IndexOf(searchPattern, stringComparisonType) > -1));
 			}
 
-			public string Replace( string lineText )
+			public string Replace(string lineText)
 			{
-				if( searchRegex != null )
+				if (searchRegex != null)
 				{
-					return searchRegex.Replace( lineText, replaceWith );
+					return searchRegex.Replace(lineText, replaceWith);
 				}
-				else if( searchPattern != null )
+				else if (searchPattern != null)
 				{
-					return FancyReplace( lineText, searchPattern, replaceWith, stringComparisonType );
+					return StringReplace(lineText, searchPattern, replaceWith, stringComparisonType);
 				}
 				else
 				{
-					throw new InvalidOperationException( "Shouldn't get here" );
+					throw new InvalidOperationException("Shouldn't get here");
 				}
 			}
 
 			// Graciously borrowed from
 			// http://www.codeproject.com/KB/string/fastestcscaseinsstringrep.aspx (in the comments)
 			// copyright and credit goes to Michael Epner
-			private static string FancyReplace( string original, string pattern, string replacement, StringComparison comparisonType )
+			private static string StringReplace(string original, string pattern, string replacement, StringComparison comparisonType)
 			{
 				if (original == null)
 				{
@@ -305,9 +321,8 @@ namespace FindInFiles
 				int lenPattern = pattern.Length;
 				int idxPattern = -1;
 				int idxLast = 0;
-	            
-				StringBuilder result = new StringBuilder();
 
+				StringBuilder result = new StringBuilder();
 				while (true)
 				{
 					idxPattern = original.IndexOf(pattern, idxPattern + 1, comparisonType);
@@ -315,7 +330,7 @@ namespace FindInFiles
 					if (idxPattern < 0)
 					{
 						result.Append(original, idxLast, original.Length - idxLast);
-	                    
+
 						break;
 					}
 
@@ -329,58 +344,46 @@ namespace FindInFiles
 			}
 		}
 
-		private FindResults EachLineInFiles( IEnumerable<string> files, Func<int, string, bool> lineMatcher )
+		private IEnumerable<FindResult> MatchInFiles(IEnumerable<string> files, Func<int, string, bool> lineMatcher)
 		{
-			return EachLineInFiles( files, lineMatcher, null );
+			return MatchInFiles(files, lineMatcher, null);
 		}
 
-		private FindResults EachLineInFiles( IEnumerable<string> files, Func<int, string, bool> lineMatcher, Func<string, string> lineReplacer )
+		private IEnumerable<FindResult> MatchInFiles(IEnumerable<string> files, Func<int, string, bool> lineMatcher, Func<string, string> lineReplacer)
 		{
 			DateTime startedAt = DateTime.Now;
 			int numFilesMatched = 0;
 			int numLinesMatched = 0;
 
 			var filecount = 0;
-			var matches = new List<FindResult>();
-			foreach( string file in files )
+			foreach (string file in files)
 			{
 				filecount++;
-				FireScanningFile( file );
+				FireFileScanned(file);
 				bool fileMatches = false;
 
 				string[] lines = File.ReadAllLines(file); // make this use blocks
 				// Scan each line and add a match if it matched
-				for( int lineNumber = 0; lineNumber < lines.Length; ++lineNumber )
+				for (int lineNumber = 0; lineNumber < lines.Length; ++lineNumber)
 				{
-					if( lineMatcher( lineNumber, lines[lineNumber] ) )
+					if (lineMatcher(lineNumber, lines[lineNumber]))
 					{
 						fileMatches = true;
 						++numLinesMatched;
 
-						if( lineReplacer != null )
-							lines[lineNumber] = lineReplacer( lines[lineNumber] );
+						if (lineReplacer != null)
+							lines[lineNumber] = lineReplacer(lines[lineNumber]);
 
-						// show the replaced text
-						matches.Add( new FindResult( file, lineNumber + 1, lines[lineNumber] ) );
+						// we found a match
+						yield return new FindResult(file, lineNumber + 1, lines[lineNumber]);
 					}
 				}
-				if( lineReplacer != null ) // OH NO
-					File.WriteAllLines( file, lines );
+				if (lineReplacer != null) // OH NO
+					File.WriteAllLines(file, lines);
 
-				if( fileMatches )
+				if (fileMatches)
 					++numFilesMatched;
 			}
-
-			return new FindResults(
-				Options.SearchPattern,
-				Options.SearchPath,
-				Options.ReplaceWith,
-				DateTime.Now - startedAt,
-				filecount,
-				numFilesMatched,
-				numLinesMatched,
-				matches );
-
 		}
 	}
 }

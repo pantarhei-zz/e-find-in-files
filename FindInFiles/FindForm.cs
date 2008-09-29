@@ -117,7 +117,7 @@ namespace FindInFiles
 			ButtonsEnabled = false;
 
 			var finder = new Finder( options );
-			finder.ScanningFile += ( text ) => SafeInvoke( () => SetProgressText( text ) );
+			finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
 
 			// Do the find in another thread
 			var b = new BackgroundWorker();
@@ -149,7 +149,7 @@ namespace FindInFiles
 			buttonFind.Enabled = false;
 
 			var finder = new Finder( options );
-			finder.ScanningFile += ( text ) => SafeInvoke( () => SetReplaceProgressText( text ) );
+			finder.FileScanned += ( text ) => SafeInvoke( () => SetReplaceProgressText( text ) );
 
 			// Do the find in another thread
 			var b = new BackgroundWorker();
