@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace FindInFiles
 {
@@ -21,18 +22,19 @@ namespace FindInFiles
 
 			Directory = directory;
 			FileExtensions = fileExtensions;
-			directoryExclusions = directoryExclusions;
+			DirectoryExclusions = directoryExclusions;
 		}
 	}
 
 	/// <summary>
-	/// Options for finding which lines match in a file
+	/// Options for finding which lines match in a file (and optionally replacing them if the alternate constructor is used)
 	/// </summary>
 	class FindLineOptions
 	{
 		public readonly string Pattern;
 		public readonly bool MatchCase;
 		public readonly bool UseRegex;
+		public readonly string Replacement;
 
 		public FindLineOptions(string pattern, bool matchCase, bool useRegex)
 		{
@@ -41,19 +43,14 @@ namespace FindInFiles
 			Pattern = pattern;
 			MatchCase = matchCase;
 			UseRegex = useRegex;
+
+			Replacement = null;
 		}
-	}
 
-	/// <summary>
-	/// Options for finding and replacing lines in a file
-	/// </summary>
-	class ReplaceLineOptions : FindLineOptions
-	{
-		public readonly string Replacement;
-
-		public ReplaceLineOptions(string replacement)
+		public FindLineOptions( string pattern, bool matchCase, bool useRegex, string replacement )
+			: this(pattern, matchCase, useRegex)
 		{
-			Debug.Assert(replacement != null);
+			Debug.Assert( replacement != null );
 
 			Replacement = replacement;
 		}

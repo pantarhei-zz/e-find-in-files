@@ -106,23 +106,25 @@ namespace FindInFiles
 
 			SavePrefsToRegistry();
 
-			var options = new FindOptions(
+			var findFileOptions = new FindFileOptions(
 				textSearchPath.Text,
+				Util.ParseSearchExtensions(textSearchExtensions.Text),
+				Util.ParseDirectoryExcludes(textDirectoryExcludes.Text) );
+
+			var findLineOptions = new FindLineOptions(
 				textSearchPattern.Text,
 				checkMatchCase.Checked,
-				checkUseRegex.Checked,
-				textSearchExtensions.Text,
-				textDirectoryExcludes.Text );
+				checkUseRegex.Checked );
 
 			ButtonsEnabled = false;
 
-			var finder = new Finder( options );
+			var finder = new Finder( findFileOptions, findLineOptions );
 			finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
 
-			// Do the find in another thread
+			// Do the find in the background
 			var b = new BackgroundWorker();
-			b.DoWork += ( ws, we ) => FindWorker( finder );
-			b.RunWorkerCompleted += ( ws, we ) => {
+			b.DoWork += ( _sender, _eventargs ) => FindWorker( finder );
+			b.RunWorkerCompleted += ( _sender, _eventargs ) => {
 				SafeInvoke( () => {
 					OnParamsChanged( null, null );
 					ButtonsEnabled = true;
@@ -137,21 +139,23 @@ namespace FindInFiles
 		{
 			SavePrefsToRegistry();
 
-			var options = new FindOptions(
+			var findFileOptions = new FindFileOptions(
 				textSearchPath.Text,
+				Util.ParseSearchExtensions( textSearchExtensions.Text ),
+				Util.ParseDirectoryExcludes( textDirectoryExcludes.Text ) );
+
+			var replaceLineOptions = new FindLineOptions(
 				textSearchPattern.Text,
-				textReplaceWith.Text, // aha
 				checkMatchCase.Checked,
 				checkUseRegex.Checked,
-				textSearchExtensions.Text,
-				textDirectoryExcludes.Text );
+				textReplaceWith.Text );
 
 			buttonFind.Enabled = false;
 
-			var finder = new Finder( options );
+			var finder = new Finder( findFileOptions, replaceLineOptions );
 			finder.FileScanned += ( text ) => SafeInvoke( () => SetReplaceProgressText( text ) );
 
-			// Do the find in another thread
+			// Do the replace in the background
 			var b = new BackgroundWorker();
 			b.DoWork += ( ws, we ) => FindWorker( finder );
 			b.RunWorkerCompleted += ( ws, we ) => {

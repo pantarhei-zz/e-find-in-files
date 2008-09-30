@@ -58,6 +58,7 @@
     <Compile Include="FindForm.Designer.cs">
       <DependentUpon>FindForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="HtmlSummariser.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
