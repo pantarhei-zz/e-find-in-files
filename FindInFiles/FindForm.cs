@@ -123,7 +123,7 @@ namespace FindInFiles
 
 			// Do the find in the background
 			var b = new BackgroundWorker();
-			b.DoWork += ( _sender, _eventargs ) => FindWorker( finder );
+			b.DoWork += ( _sender, _eventargs ) => finder.Find();
 			b.RunWorkerCompleted += ( _sender, _eventargs ) => {
 				SafeInvoke( () => {
 					OnParamsChanged( null, null );
@@ -141,54 +141,34 @@ namespace FindInFiles
 
 			var findFileOptions = new FindFileOptions(
 				textSearchPath.Text,
-				Util.ParseSearchExtensions( textSearchExtensions.Text ),
-				Util.ParseDirectoryExcludes( textDirectoryExcludes.Text ) );
+				Util.ParseSearchExtensions(textSearchExtensions.Text),
+				Util.ParseDirectoryExcludes(textDirectoryExcludes.Text));
 
-			var replaceLineOptions = new FindLineOptions(
+			var findLineOptions = new FindLineOptions(
 				textSearchPattern.Text,
 				checkMatchCase.Checked,
 				checkUseRegex.Checked,
-				textReplaceWith.Text );
+				textReplaceWith.Text);
 
-			buttonFind.Enabled = false;
+			ButtonsEnabled = false;
 
-			var finder = new Finder( findFileOptions, replaceLineOptions );
-			finder.FileScanned += ( text ) => SafeInvoke( () => SetReplaceProgressText( text ) );
+			var finder = new Finder(findFileOptions, findLineOptions);
+			finder.FileScanned += (text) => SafeInvoke(() => SetProgressText(text));
 
-			// Do the replace in the background
+			// Do the find in the background
 			var b = new BackgroundWorker();
-			b.DoWork += ( ws, we ) => FindWorker( finder );
-			b.RunWorkerCompleted += ( ws, we ) => {
-				SafeInvoke( () => {
-					OnParamsChanged( null, null );
+			b.DoWork += (_sender, _eventargs) => finder.Find();
+			b.RunWorkerCompleted += (_sender, _eventargs) =>
+			{
+				SafeInvoke(() =>
+				{
+					OnParamsChanged(null, null);
 					ButtonsEnabled = true;
-					SetProgressText( "" );
+					SetProgressText("");
 					Close();
-				} );
+				});
 			};
 			b.RunWorkerAsync();
-		}
-
-		private void FindWorker( Finder finder )
-		{
-			Debug.Assert( finder != null );
-
-			try
-			{
-				// now that the find is finished
-				SafeInvoke( () => SetProgressText( "..." ) );
-
-				foreach( string line in finder.Find() )
-					Console.WriteLine( line );
-			}
-			catch( ArgumentException ex )
-			{
-				SafeInvoke( () => {
-					OnParamsChanged( null, null );
-					SetProgressText( "" );
-					MessageBox.Show( this, ex.Message, "Error" );
-				} );
-			}
 		}
 
 		private void OnThis_Load( object sender, EventArgs e )
@@ -199,6 +179,7 @@ namespace FindInFiles
 			checkMatchCase.Target = checkReplaceMatchCase;
 
 			textSearchPattern.Target = textReplaceSearchPattern;
+			//textReplaceWith isn't linked anywhere
 			textSearchPath.Target = textReplaceSearchPath;
 			textSearchExtensions.Target = textReplaceSearchExtensions;
 			textDirectoryExcludes.Target = textReplaceDirectoryExcludes;
@@ -284,6 +265,7 @@ namespace FindInFiles
 		private void SavePrefsToRegistry()
 		{
 			SearchPathHistory.Grab();
+			ReplaceWithHistory.Grab();
 			SearchPatternHistory.Grab();
 			SearchExtensionsHistory.Grab();
 			DirectoryExcludesHistory.Grab();
@@ -291,6 +273,7 @@ namespace FindInFiles
 			using( RegistryKey prefsKey = OpenPrefsRegistryKey() )
 			{
 				SearchPathHistory.Save( prefsKey );
+				ReplaceWithHistory.Save( prefsKey );
 				SearchPatternHistory.Save( prefsKey );
 				SearchExtensionsHistory.Save( prefsKey );
 				DirectoryExcludesHistory.Save( prefsKey );

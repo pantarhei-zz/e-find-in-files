@@ -51,6 +51,9 @@
     <Compile Include="Controls\LinkedComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MatchedFileCollection.cs" />
+    <Compile Include="MatchedLine.cs" />
+    <Compile Include="MatchedLineCollection.cs" />
     <Compile Include="Finder.cs" />
     <Compile Include="FindForm.cs">
       <SubType>Form</SubType>
@@ -58,7 +61,7 @@
     <Compile Include="FindForm.Designer.cs">
       <DependentUpon>FindForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="HtmlSummariser.cs" />
+    <Compile Include="HtmlOutputter.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,6 +90,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ComboBoxHistory.cs" />
+    <Compile Include="StringScanner.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
