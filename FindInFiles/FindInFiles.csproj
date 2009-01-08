@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{71760719-225D-48F6-9E7C-07AD2743786B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -51,9 +51,11 @@
     <Compile Include="Controls\LinkedComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="MatchedFileCollection.cs" />
+    <Compile Include="CountedEnumerable.cs" />
+    <Compile Include="FileMatcher.cs" />
+    <Compile Include="LinqBridge.cs" />
     <Compile Include="MatchedLine.cs" />
-    <Compile Include="MatchedLineCollection.cs" />
+    <Compile Include="LineMatcher.cs" />
     <Compile Include="Finder.cs" />
     <Compile Include="FindForm.cs">
       <SubType>Form</SubType>

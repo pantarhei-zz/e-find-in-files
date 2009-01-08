@@ -11,8 +11,8 @@ namespace FindInFiles
 	/// </summary>
 	interface IStringScanner
 	{
-		Range<int>[] Scan(string text);
-		Range<int>[] ScanAndReplace(ref string text);
+		IEnumerable<Range> Scan( string text );
+		IEnumerable<Range> ScanAndReplace( string text, Action<string> replaceCallback );
 	}
 
 	class RegexScanner : IStringScanner
@@ -30,12 +30,12 @@ namespace FindInFiles
 			Replacement = replacement;
 		}
 
-		public Range<int>[] Scan(string text)
+		public IEnumerable<Range> Scan(string text)
 		{
 			return null;
 		}
 
-		public Range<int>[] ScanAndReplace(ref string text)
+		public IEnumerable<Range> ScanAndReplace(string text, Action<string> replaceCallback)
 		{
 			return null;
 		}
@@ -51,67 +51,37 @@ namespace FindInFiles
 		{
 			Pattern = pattern;
 			Replacement = replacement;
-			ComparisonType = matchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
+			ComparisonType = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
 		}
 
-		public Range<int>[] Scan(string text)
+		public IEnumerable<Range> Scan(string text)
 		{
-			List<Range<int>> ranges = null;
-
-			int startIndex = 0;
-			if ((startIndex = text.IndexOf(Pattern, startIndex, ComparisonType)) != -1)
-			{
-				// avoid creating a buffer unless we actually find something
-				ranges = new List<Range<int>>{
-					new Range<int>(startIndex, startIndex += Pattern.Length)
-				};
-
-				while ((startIndex = text.IndexOf(Pattern, startIndex)) != -1)
-					ranges.Add(new Range<int>(startIndex, startIndex += Pattern.Length));
-			}
-
-			return (ranges == null) ?
-				new Range<int>[0] :
-				ranges.ToArray();
+			var startIndex = 0;
+			
+			while ((startIndex = text.IndexOf(Pattern, startIndex, ComparisonType)) != -1)
+				yield return new Range(startIndex, startIndex += Pattern.Length);
 		}
 
-		public Range<int>[] ScanAndReplace(ref string text)
+		public IEnumerable<Range> ScanAndReplace(string text, Action<string> replaceCallback)
 		{
-			List<Range<int>> ranges = null;
-			StringBuilder replaceBuffer = null;
+			StringBuilder replaceBuffer = new StringBuilder(); ;
 
 			int lastIndex = 0, nextIndex = 0;
-			if ((nextIndex = text.IndexOf(Pattern, nextIndex, ComparisonType)) != -1)
+
+			while ((nextIndex = text.IndexOf(Pattern, nextIndex, ComparisonType)) != -1)
 			{
-				// avoid creating a buffer unless we actually find something
-				replaceBuffer = new StringBuilder();
 				replaceBuffer.Append(text.Substring(lastIndex, nextIndex-lastIndex));
 				replaceBuffer.Append(Replacement);
-				ranges = new List<Range<int>>{
-					new Range<int>(nextIndex, nextIndex + Replacement.Length)
-				};
-				nextIndex += Pattern.Length; // the indexes refer to the search text, the ranges map to the replaced text
+
+				yield return new Range(nextIndex, nextIndex + Replacement.Length);
+				nextIndex += Pattern.Length;
 				lastIndex = nextIndex;
-
-				while ((nextIndex = text.IndexOf(Pattern, nextIndex)) != -1)
-				{
-					replaceBuffer.Append(text.Substring(lastIndex, nextIndex-lastIndex));
-					replaceBuffer.Append(Replacement);
-
-					ranges.Add(new Range<int>(nextIndex, nextIndex + Replacement.Length));
-					nextIndex += Pattern.Length;
-					lastIndex = nextIndex;
-				}
-
-				replaceBuffer.Append(text.Substring(lastIndex)); //stick the trailing bit on
 			}
 
-			if (replaceBuffer != null)
-				text = replaceBuffer.ToString();
+			replaceBuffer.Append(text.Substring(lastIndex)); //stick the trailing bit on
 
-			return (ranges == null) ?
-				new Range<int>[0] :
-				ranges.ToArray();
+			if( replaceBuffer != null && replaceCallback != null )
+				replaceCallback( replaceBuffer.ToString() );
 		}
 	}
 }

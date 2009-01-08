@@ -15,16 +15,14 @@ namespace FindInFiles
 {
 	public static class Util
 	{
-		/// <summary>Borrow Select from LINQ</summary>
-		/// <typeparam name="TInput">Type of input item</typeparam>
-		/// <typeparam name="TOutput">Type of output item</typeparam>
-		/// <param name="collection">Collection of input items</param>
-		/// <param name="converter">Delegate to use to do the conversion</param>
-		/// <returns>Collection of output items</returns>
-		public static IEnumerable<TOutput> Select<TInput, TOutput>( this IEnumerable<TInput> collection, Converter<TInput, TOutput> converter )
+		public static bool IsOK( this System.Windows.Forms.DialogResult result )
 		{
-			foreach( TInput item in collection )
-				yield return converter( item );
+			return result == System.Windows.Forms.DialogResult.OK;
+		}
+
+		public static string F( this string formatString, params object[] args )
+		{
+			return String.Format( formatString, args );
 		}
 
 		/// <summary>Removes invalid characters from a path</summary>
@@ -60,9 +58,9 @@ namespace FindInFiles
 
 			try
 			{
-				return CleanPath( Process.Start(startInfo).StandardOutput.ReadToEnd() );
+				return CleanPath( Process.Start( startInfo ).StandardOutput.ReadToEnd() );
 			}
-			catch( Win32Exception) // file not found - can't find cygpath.exe. Don't care about being more specific with our error
+			catch( Win32Exception ) // file not found - can't find cygpath.exe. Don't care about being more specific with our error
 			{ }
 			return path;
 		}
@@ -82,9 +80,9 @@ namespace FindInFiles
 		/// </summary>
 		/// <param name="e">The user input file extensions</param>
 		/// <returns>Split and cleaned file extensions</returns>
-		public static string[] ParseSearchExtensions(string e)
+		public static string[] ParseSearchExtensions( string e )
 		{
-			return e.Replace("*", "").Replace(" ", "").Split(new[] { ',', ';' });
+			return e.Replace( "*", "" ).Replace( " ", "" ).Split( new[] { ',', ';' } );
 		}
 
 		/// <summary>
@@ -92,9 +90,9 @@ namespace FindInFiles
 		/// </summary>
 		/// <param name="e">The user input directory exclusions</param>
 		/// <returns>Split and cleaned directory exclusions</returns>
-		public static string[] ParseDirectoryExcludes(string e)
+		public static string[] ParseDirectoryExcludes( string e )
 		{
-			return e.Split(new[] { ',', ';' });
+			return e.Split( new[] { ',', ';' } );
 		}
 	}
 }

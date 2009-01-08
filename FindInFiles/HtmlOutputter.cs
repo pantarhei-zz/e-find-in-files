@@ -25,13 +25,10 @@ namespace FindInFiles
 		/// <param name="line">The input text</param>
 		/// <param name="ranges">Character start/ends to surround in span tags</param>
 		/// <returns>A hilighted copy</returns>
-		private static string EscapedHighlight(string line, Range<int>[] ranges)
+		private static string EscapedHighlight(string line, IEnumerable<Range> ranges)
 		{
 			Debug.Assert(line != null);
 			Debug.Assert(ranges != null);
-
-			if (ranges.Length == 0)
-				return line;
 
 			var b = new StringBuilder();
 			int lastIndex = 0;
@@ -44,6 +41,8 @@ namespace FindInFiles
 
 				lastIndex = r.Upper;
 			}
+			b.Append( line.Substring( lastIndex ) ); //stick the trailing bit on
+
 			return b.ToString();
 		}
 
@@ -57,25 +56,25 @@ namespace FindInFiles
 
 		private readonly DateTime StartTime;
 		private readonly string Pattern, Directory;
-		private readonly MatchedFileCollection Files;
-		private readonly MatchedLineCollection Lines;
+		private readonly CountedEnumerable<string> Files;
+		private readonly CountedEnumerable<Match> Matches;
 
-		public HtmlOutputter( string pattern, string directory, MatchedFileCollection files, MatchedLineCollection lines )
+		public HtmlOutputter( string pattern, string directory, CountedEnumerable<string> files, CountedEnumerable<Match> matches )
 		{
 			StartTime = DateTime.Now;
 
-			Debug.Assert(pattern != null);
-			Debug.Assert(directory != null);
-			Debug.Assert(files != null);
-			Debug.Assert(lines != null);
+			Debug.Assert( pattern != null );
+			Debug.Assert( directory != null );
+			Debug.Assert( files != null );
+			Debug.Assert( matches != null );
 
 			Pattern = pattern;
 			Directory = directory;
 			Files = files;
-			Lines = lines;
+			Matches = matches;
 
-			Console.WriteLine("<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>");
-			Console.WriteLine("<pre>");
+			Console.WriteLine( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
+			Console.WriteLine( "<pre>" );
 		}
 
 		public void Dispose()
@@ -86,20 +85,20 @@ namespace FindInFiles
 
 			Console.WriteLine( "Searched For '{0}' in {1}", Pattern, Directory);
 
-			Console.WriteLine( "{0} Lines in {1} Files Matched.  {2} Files Scanned in {3}s",
-				0, 0, 0, timeTaken.TotalSeconds);
+			Console.WriteLine( "{0} Matches found. {1} Files Scanned in {2}s",
+				Matches.Count, Files.Count, timeTaken.TotalSeconds);
 
 			Console.WriteLine( "</pre>");
 		}
 
-		public void Write( MatchedLine match )
+		public void Write( Match match )
 		{
 			Console.WriteLine( 
 				"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
 				match.File,
 				match.LineNumber,
 				MakeShortPath( Directory, match.File ),
-				EscapedHighlight(match.LineText, match.MatchingCharacters)
+				EscapedHighlight(match.LineText, new[]{ match.Characters })
 			);
 		}
 	}

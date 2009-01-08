@@ -14,30 +14,22 @@ using System.Diagnostics;
 
 namespace FindInFiles
 {
-	public delegate TResult Func<TResult>();
-	public delegate TResult Func<T, TResult>( T arg );
-	public delegate TResult Func<T1, T2, TResult>( T1 arg1, T2 arg2 );
-	public delegate TResult Func<T1, T2, T3, TResult>( T1 arg1, T2 arg2, T3 arg3 );
-	public delegate TResult Func<T1, T2, T3, T4, TResult>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 );
-
-	public delegate void Action();
-	// Action<T> is already part of the base framework
-	public delegate void Action<T1, T2>( T1 arg1, T2 arg2 );
-	public delegate void Action<T1, T2, T3>( T1 arg1, T2 arg2, T3 arg3 );
-	public delegate void Action<T1, T2, T3, T4>( T1 arg1, T2 arg2, T3 arg3, T4 arg4 );
-
 	public partial class FindForm : Form
 	{
+		private const int FIND_HEIGHT = 336;
+		private const int REPLACE_HEIGHT = 356;
+
+		// ----- Member Variables ---------------------------------------------
+
 		private readonly ComboBoxHistory SearchPathHistory;
 		private readonly ComboBoxHistory SearchPatternHistory;
 		private readonly ComboBoxHistory ReplaceWithHistory;
 		private readonly ComboBoxHistory SearchExtensionsHistory;
-		private readonly ComboBoxHistory DirectoryExcludesHistory;
+		private readonly ComboBoxHistory ExcludeDirectoriesHistory;
 
 		private readonly bool StartInReplaceMode;
 
-		private const int FIND_HEIGHT = 336;
-		private const int REPLACE_HEIGHT = 356;
+		// ----- Member Functions ---------------------------------------------
 
 		public FindForm( bool startInReplaceMode )
 		{
@@ -45,31 +37,34 @@ namespace FindInFiles
 
 			InitializeComponent();
 
-			SearchPathHistory        = new ComboBoxHistory( "textSearchPath", textSearchPath );
-			SearchPatternHistory     = new ComboBoxHistory( "textSearchPattern", textSearchPattern );
-			ReplaceWithHistory       = new ComboBoxHistory( "textReplaceWith", textReplaceWith );
-			SearchExtensionsHistory  = new ComboBoxHistory( "textSearchExtensions", textSearchExtensions );
-			DirectoryExcludesHistory = new ComboBoxHistory( "textDirectoryExcludes", textDirectoryExcludes );
+			SearchPathHistory         = new ComboBoxHistory( "textSearchPath", comboSearchPath );
+			SearchPatternHistory      = new ComboBoxHistory( "textSearchPattern", comboSearchPattern );
+			ReplaceWithHistory        = new ComboBoxHistory( "textReplaceWith", comboReplaceWith );
+			SearchExtensionsHistory   = new ComboBoxHistory( "textSearchExtensions", comboSearchExtensions );
+			ExcludeDirectoriesHistory = new ComboBoxHistory( "textDirectoryExcludes", comboExcludeDirectories );
+		}
+
+		private string TrimLeadingText(string str, int length)
+		{
+			Debug.Assert( str != null );
+			Debug.Assert( length > 3 );
+
+			if (str.Length > length)
+				return "..." + str.Substring(str.Length - (length - 3), (length - 3));
+			else
+				return str;
 		}
 
 		public void SetProgressText( string txt )
 		{
 			Debug.Assert( txt != null );
-
-			if( txt.Length > 40 )
-				this.textProgress.Text = "..." + txt.Substring( txt.Length - 37, 37 );
-			else
-				this.textProgress.Text = txt;
+			textProgress.Text = TrimLeadingText(txt, 40);
 		}
 
 		public void SetReplaceProgressText( string txt )
 		{
 			Debug.Assert( txt != null );
-
-			if( txt.Length > 40 )
-				this.textReplaceProgress.Text = "..." + txt.Substring( txt.Length - 37, 37 );
-			else
-				this.textReplaceProgress.Text = txt;
+			textReplaceProgress.Text = TrimLeadingText(txt, 40);
 		}
 
 		public void SafeInvoke( Action fn )
@@ -95,6 +90,17 @@ namespace FindInFiles
 			}
 		}
 
+		private string SearchText
+		{
+			get { return comboSearchPattern.Text; }
+			set { comboSearchPattern.Text = value; }
+		}
+
+		private string ReplaceText
+		{
+			get { return comboReplaceWith.Text; }
+		}
+
 		private void OnButtonFind_Click( object sender, EventArgs e )
 		{
 			// if the user presses the enter key, this fires even though the tab is wrong
@@ -107,12 +113,12 @@ namespace FindInFiles
 			SavePrefsToRegistry();
 
 			var findFileOptions = new FindFileOptions(
-				textSearchPath.Text,
-				Util.ParseSearchExtensions(textSearchExtensions.Text),
-				Util.ParseDirectoryExcludes(textDirectoryExcludes.Text) );
+				comboSearchPath.Text,
+				Util.ParseSearchExtensions(comboSearchExtensions.Text),
+				Util.ParseDirectoryExcludes(comboExcludeDirectories.Text) );
 
 			var findLineOptions = new FindLineOptions(
-				textSearchPattern.Text,
+				SearchText,
 				checkMatchCase.Checked,
 				checkUseRegex.Checked );
 
@@ -140,15 +146,15 @@ namespace FindInFiles
 			SavePrefsToRegistry();
 
 			var findFileOptions = new FindFileOptions(
-				textSearchPath.Text,
-				Util.ParseSearchExtensions(textSearchExtensions.Text),
-				Util.ParseDirectoryExcludes(textDirectoryExcludes.Text));
+				comboSearchPath.Text,
+				Util.ParseSearchExtensions(comboSearchExtensions.Text),
+				Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
 
 			var findLineOptions = new FindLineOptions(
-				textSearchPattern.Text,
+				SearchText,
 				checkMatchCase.Checked,
 				checkUseRegex.Checked,
-				textReplaceWith.Text);
+				comboReplaceWith.Text);
 
 			ButtonsEnabled = false;
 
@@ -178,11 +184,11 @@ namespace FindInFiles
 			checkUseRegex.Target = checkReplaceUseRegex;
 			checkMatchCase.Target = checkReplaceMatchCase;
 
-			textSearchPattern.Target = textReplaceSearchPattern;
+			comboSearchPattern.Target = textReplaceSearchPattern;
 			//textReplaceWith isn't linked anywhere
-			textSearchPath.Target = textReplaceSearchPath;
-			textSearchExtensions.Target = textReplaceSearchExtensions;
-			textDirectoryExcludes.Target = textReplaceDirectoryExcludes;
+			comboSearchPath.Target = textReplaceSearchPath;
+			comboSearchExtensions.Target = textReplaceSearchExtensions;
+			comboExcludeDirectories.Target = textReplaceDirectoryExcludes;
 
 			// load prefs from registry
 
@@ -207,12 +213,12 @@ namespace FindInFiles
 
 		private void OnParamsChanged( object sender, EventArgs e )
 		{
-			buttonFind.Enabled = IsValid();
+			ButtonsEnabled = IsValid();
 		}
 
 		private bool IsValid()
 		{
-			return textSearchPath.Text.Length > 0 && textSearchPattern.Text.Length > 0;
+			return comboSearchPath.Text.Length > 0 && SearchText.Length > 0;
 		}
 
 		// ------ Preference Loading Utils ------------------------------------
@@ -222,29 +228,29 @@ namespace FindInFiles
 			Debug.Assert( parent != null );
 			Debug.Assert( subKeyName != null );
 
-			RegistryKey ret = parent.OpenSubKey( subKeyName, true );
-			if( ret == null )
-				ret = parent.CreateSubKey( subKeyName );
+			var subKey = parent.OpenSubKey( subKeyName, true );
+			if( subKey == null )
+				subKey = parent.CreateSubKey( subKeyName );
 
-			return ret;
+			return subKey;
 		}
 
 		private static RegistryKey OpenPrefsRegistryKey()
 		{
-			RegistryKey software = Registry.CurrentUser.OpenSubKey( "Software", true );
-			RegistryKey eAddons = OpenOrCreate( software, "e-addons" );
+			var softwareKey = Registry.CurrentUser.OpenSubKey( "Software", true );
+			var eAddonsKey = OpenOrCreate( softwareKey, "e-addons" );
 
-			return OpenOrCreate( eAddons, "FindInFiles" );
+			return OpenOrCreate( eAddonsKey, "FindInFiles" );
 		}
 
 		private void LoadPrefsFromRegistry()
 		{
-			using( RegistryKey prefsKey = OpenPrefsRegistryKey() )
+			using( var prefsKey = OpenPrefsRegistryKey() )
 			{
 				SearchPathHistory.Load( prefsKey );
 				SearchPatternHistory.Load( prefsKey );
 				SearchExtensionsHistory.Load( prefsKey );
-				DirectoryExcludesHistory.Load( prefsKey );
+				ExcludeDirectoriesHistory.Load( prefsKey );
 
 				object tmp = prefsKey.GetValue( "checkUseRegex" );
 				checkUseRegex.Checked = (tmp is int && (int)tmp == 1);
@@ -268,7 +274,7 @@ namespace FindInFiles
 			ReplaceWithHistory.Grab();
 			SearchPatternHistory.Grab();
 			SearchExtensionsHistory.Grab();
-			DirectoryExcludesHistory.Grab();
+			ExcludeDirectoriesHistory.Grab();
 
 			using( RegistryKey prefsKey = OpenPrefsRegistryKey() )
 			{
@@ -276,7 +282,7 @@ namespace FindInFiles
 				ReplaceWithHistory.Save( prefsKey );
 				SearchPatternHistory.Save( prefsKey );
 				SearchExtensionsHistory.Save( prefsKey );
-				DirectoryExcludesHistory.Save( prefsKey );
+				ExcludeDirectoriesHistory.Save( prefsKey );
 
 				prefsKey.SetValue( "checkUseRegex", checkUseRegex.Checked ? 1 : 0 );
 				prefsKey.SetValue( "checkMatchCase", checkMatchCase.Checked ? 1 : 0 );
@@ -287,33 +293,35 @@ namespace FindInFiles
 
 		private void OnButtonBrowse_Click( object sender, EventArgs e )
 		{
-			FolderBrowserDialog fd = new FolderBrowserDialog();
-			fd.ShowNewFolderButton = false;
-			fd.SelectedPath = textSearchPath.Text;
-			if( fd.ShowDialog() == DialogResult.OK )
-				textSearchPath.Text = fd.SelectedPath;
+			var fd = new FolderBrowserDialog {
+				ShowNewFolderButton = false,
+				SelectedPath = comboSearchPath.Text
+			};
+
+			if( fd.ShowDialog().IsOK() )
+				comboSearchPath.Text = fd.SelectedPath;
 		}
 
 		private void UseProjectDirectory_Click( object sender, EventArgs e )
 		{
-			string projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
+			var projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
 			if( projectDir == null || projectDir.Length < 1 && sender != null ) //only show message if we were invoked by a button press
 			{
 				MessageBox.Show( "No Project Directory is set" );
 				return;
 			}
-			textSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
+			comboSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
 		}
 
 		private void UseCurrentDirectory_Click( object sender, EventArgs e )
 		{
-			string dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
+			var dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
 			if( dir == null || dir.Length < 1 && sender != null ) //only show message if we were invoked by a button press
 			{
 				MessageBox.Show( "No Current Directory is set" );
 				return;
 			}
-			textSearchPath.Text = Util.CleanAndConvertCygpath(dir);
+			comboSearchPath.Text = Util.CleanAndConvertCygpath(dir);
 		}
 
 		private void UseCurrentWord_Click( object sender, EventArgs e )
@@ -324,26 +332,26 @@ namespace FindInFiles
 				MessageBox.Show( "No Current Word is set" );
 				return;
 			}
-			textSearchPattern.Text = word;
+			SearchText = word;
 		}
 
 		private void LoadSelectedText()
 		{
 			string text = Environment.GetEnvironmentVariable( "TM_SELECTED_TEXT" );
 			if( text != null && text.Length > 0 )
-				textSearchPattern.Text = text;
+				SearchText = text;
 		}
 
 		private void LoadDefaults()
 		{
-			if( textSearchPattern.Text.Length < 1 || textReplaceSearchPattern.Text.Length < 1 )
+			if( SearchText.Length < 1 || textReplaceSearchPattern.Text.Length < 1 )
 				UseCurrentWord_Click( null, null );
 
-			if( textSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1 )
+			if( comboSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1 )
 				UseProjectDirectory_Click( null, null );
 
-			if( textSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1 )
-				textSearchExtensions.Text = "*.*";
+			if( comboSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1 )
+				comboSearchExtensions.Text = "*.*";
 		}
 
 		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
@@ -357,21 +365,21 @@ namespace FindInFiles
 
 		private void OnThis_Shown( object sender, EventArgs e )
 		{
-			textSearchPattern.Select( 0, textSearchPattern.Text.Length );
-			textSearchPattern.Focus();
+			comboSearchPattern.Select( 0, SearchText.Length );
+			comboSearchPattern.Focus();
 		}
 
 		private void OnTabChanged( object sender, EventArgs e )
 		{
 			if( tabControl.SelectedTab == replaceTab )
 			{
-				this.Height = REPLACE_HEIGHT;
+				Height = REPLACE_HEIGHT;
 				tabControl.Height = REPLACE_HEIGHT - 25;
 				replaceTab.Height = 305;
 			}
 			else
 			{
-				this.Height = FIND_HEIGHT;
+				Height = FIND_HEIGHT;
 				tabControl.Height = FIND_HEIGHT - 25;
 			}
 		}

@@ -23,6 +23,15 @@ namespace FindInFiles
 		}
 	}
 
+	/// <summary>
+	/// Default implentation of range using an int
+	/// </summary>
+	class Range :  Range<int>
+	{
+		public Range(int lower, int upper) :
+			base(lower, upper)
+		{ }
+	}
 
 	/// <summary>
 	/// Actually does the finding
@@ -53,26 +62,14 @@ namespace FindInFiles
 
 		public void Find()
 		{
-			var files = new MatchedFileCollection( FindFileOptions );
-			var lines = new MatchedLineCollection( FindLineOptions, files );
+			var files = FileMatcher.Filter( FindFileOptions ).AsCounted();
+			var matches = LineMatcher.Filter( files, FindLineOptions ).AsCounted();
 
-			using (var output = new HtmlOutputter(FindLineOptions.Pattern, FindFileOptions.Directory, files, lines))
+			using( var h = new HtmlOutputter( FindLineOptions.Pattern, FindFileOptions.Directory, files, matches ) )
 			{
-				foreach (var match in lines)
-				{
-					output.Write(match);
-				}
+				foreach( var match in matches )
+					h.Write( match );
 			}
-		}
-
-
-		/// <summary>
-		/// Abstracts a search and replace operation, so we can treat plain text and regex searches
-		/// in the same manner
-		/// </summary>
-		private class Searcher
-		{
-			
 		}
 	}
 }

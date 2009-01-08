@@ -38,11 +38,11 @@ namespace FindInFiles
 			this.buttonReplaceUseCurrentDirectory = new System.Windows.Forms.Button();
 			this.buttonReplaceUseProjectDir = new System.Windows.Forms.Button();
 			this.buttonReplaceBrowse = new System.Windows.Forms.Button();
-			this.textReplaceWith = new System.Windows.Forms.ComboBox();
-			this.textSearchPattern = new FindInFiles.Controls.LinkedComboBox();
-			this.textSearchPath = new FindInFiles.Controls.LinkedComboBox();
-			this.textDirectoryExcludes = new FindInFiles.Controls.LinkedComboBox();
-			this.textSearchExtensions = new FindInFiles.Controls.LinkedComboBox();
+			this.comboReplaceWith = new System.Windows.Forms.ComboBox();
+			this.comboSearchPattern = new FindInFiles.Controls.LinkedComboBox();
+			this.comboSearchPath = new FindInFiles.Controls.LinkedComboBox();
+			this.comboExcludeDirectories = new FindInFiles.Controls.LinkedComboBox();
+			this.comboSearchExtensions = new FindInFiles.Controls.LinkedComboBox();
 			this.checkMatchCase = new FindInFiles.Controls.LinkedCheckBox();
 			this.checkUseRegex = new FindInFiles.Controls.LinkedCheckBox();
 			this.textReplaceSearchPattern = new FindInFiles.Controls.LinkedComboBox();
@@ -173,48 +173,48 @@ namespace FindInFiles
 			// 
 			// textReplaceWith
 			// 
-			this.textReplaceWith.FormattingEnabled = true;
-			this.textReplaceWith.Location = new System.Drawing.Point( 7, 65 );
-			this.textReplaceWith.Name = "textReplaceWith";
-			this.textReplaceWith.Size = new System.Drawing.Size( 404, 21 );
-			this.textReplaceWith.TabIndex = 3;
-			toolTip.SetToolTip( this.textReplaceWith, "The string or regular expression to search for" );
+			this.comboReplaceWith.FormattingEnabled = true;
+			this.comboReplaceWith.Location = new System.Drawing.Point( 7, 65 );
+			this.comboReplaceWith.Name = "textReplaceWith";
+			this.comboReplaceWith.Size = new System.Drawing.Size( 404, 21 );
+			this.comboReplaceWith.TabIndex = 3;
+			toolTip.SetToolTip( this.comboReplaceWith, "The string or regular expression to search for" );
 			// 
 			// textSearchPattern
 			// 
-			this.textSearchPattern.FormattingEnabled = true;
-			this.textSearchPattern.Location = new System.Drawing.Point( 7, 22 );
-			this.textSearchPattern.Name = "textSearchPattern";
-			this.textSearchPattern.Size = new System.Drawing.Size( 404, 21 );
-			this.textSearchPattern.TabIndex = 14;
-			toolTip.SetToolTip( this.textSearchPattern, "The string or regular expression to search for" );
+			this.comboSearchPattern.FormattingEnabled = true;
+			this.comboSearchPattern.Location = new System.Drawing.Point( 7, 22 );
+			this.comboSearchPattern.Name = "textSearchPattern";
+			this.comboSearchPattern.Size = new System.Drawing.Size( 404, 21 );
+			this.comboSearchPattern.TabIndex = 14;
+			toolTip.SetToolTip( this.comboSearchPattern, "The string or regular expression to search for" );
 			// 
 			// textSearchPath
 			// 
-			this.textSearchPath.FormattingEnabled = true;
-			this.textSearchPath.Location = new System.Drawing.Point( 7, 68 );
-			this.textSearchPath.Name = "textSearchPath";
-			this.textSearchPath.Size = new System.Drawing.Size( 356, 21 );
-			this.textSearchPath.TabIndex = 16;
-			toolTip.SetToolTip( this.textSearchPath, "The directory to search in" );
+			this.comboSearchPath.FormattingEnabled = true;
+			this.comboSearchPath.Location = new System.Drawing.Point( 7, 68 );
+			this.comboSearchPath.Name = "textSearchPath";
+			this.comboSearchPath.Size = new System.Drawing.Size( 356, 21 );
+			this.comboSearchPath.TabIndex = 16;
+			toolTip.SetToolTip( this.comboSearchPath, "The directory to search in" );
 			// 
 			// textDirectoryExcludes
 			// 
-			this.textDirectoryExcludes.FormattingEnabled = true;
-			this.textDirectoryExcludes.Location = new System.Drawing.Point( 9, 127 );
-			this.textDirectoryExcludes.Name = "textDirectoryExcludes";
-			this.textDirectoryExcludes.Size = new System.Drawing.Size( 417, 21 );
-			this.textDirectoryExcludes.TabIndex = 5;
-			toolTip.SetToolTip( this.textDirectoryExcludes, "Directories to exclude - eg: .svn,tmp" );
+			this.comboExcludeDirectories.FormattingEnabled = true;
+			this.comboExcludeDirectories.Location = new System.Drawing.Point( 9, 127 );
+			this.comboExcludeDirectories.Name = "textDirectoryExcludes";
+			this.comboExcludeDirectories.Size = new System.Drawing.Size( 417, 21 );
+			this.comboExcludeDirectories.TabIndex = 5;
+			toolTip.SetToolTip( this.comboExcludeDirectories, "Directories to exclude - eg: .svn,tmp" );
 			// 
 			// textSearchExtensions
 			// 
-			this.textSearchExtensions.FormattingEnabled = true;
-			this.textSearchExtensions.Location = new System.Drawing.Point( 9, 82 );
-			this.textSearchExtensions.Name = "textSearchExtensions";
-			this.textSearchExtensions.Size = new System.Drawing.Size( 417, 21 );
-			this.textSearchExtensions.TabIndex = 3;
-			toolTip.SetToolTip( this.textSearchExtensions, "File types to search for - eg: *.rb, *.rhtml, *.js" );
+			this.comboSearchExtensions.FormattingEnabled = true;
+			this.comboSearchExtensions.Location = new System.Drawing.Point( 9, 82 );
+			this.comboSearchExtensions.Name = "textSearchExtensions";
+			this.comboSearchExtensions.Size = new System.Drawing.Size( 417, 21 );
+			this.comboSearchExtensions.TabIndex = 3;
+			toolTip.SetToolTip( this.comboSearchExtensions, "File types to search for - eg: *.rb, *.rhtml, *.js" );
 			// 
 			// checkMatchCase
 			// 
@@ -315,8 +315,8 @@ namespace FindInFiles
 			this.findTab.Controls.Add( this.buttonUseCurrentWord );
 			this.findTab.Controls.Add( this.buttonUseCurrentDirectory );
 			this.findTab.Controls.Add( this.buttonUseProjectDir );
-			this.findTab.Controls.Add( this.textSearchPattern );
-			this.findTab.Controls.Add( this.textSearchPath );
+			this.findTab.Controls.Add( this.comboSearchPattern );
+			this.findTab.Controls.Add( this.comboSearchPath );
 			this.findTab.Controls.Add( this.buttonBrowse );
 			this.findTab.Controls.Add( this.textProgress );
 			this.findTab.Controls.Add( this.groupFindOptions );
@@ -340,8 +340,8 @@ namespace FindInFiles
 			// 
 			// groupFindOptions
 			// 
-			this.groupFindOptions.Controls.Add( this.textDirectoryExcludes );
-			this.groupFindOptions.Controls.Add( this.textSearchExtensions );
+			this.groupFindOptions.Controls.Add( this.comboExcludeDirectories );
+			this.groupFindOptions.Controls.Add( this.comboSearchExtensions );
 			this.groupFindOptions.Controls.Add( this.labelExcludeDirectories );
 			this.groupFindOptions.Controls.Add( this.labelFileTypes );
 			this.groupFindOptions.Controls.Add( this.checkMatchCase );
@@ -403,7 +403,7 @@ namespace FindInFiles
 			// 
 			this.replaceTab.BackColor = System.Drawing.SystemColors.Control;
 			this.replaceTab.Controls.Add( this.labelReplaceWith );
-			this.replaceTab.Controls.Add( this.textReplaceWith );
+			this.replaceTab.Controls.Add( this.comboReplaceWith );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseCurrentWord );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseCurrentDirectory );
 			this.replaceTab.Controls.Add( this.buttonReplaceUseProjectDir );
@@ -538,13 +538,13 @@ namespace FindInFiles
 		private System.Windows.Forms.Button buttonUseCurrentWord;
 		private System.Windows.Forms.Button buttonUseCurrentDirectory;
 		private System.Windows.Forms.Button buttonUseProjectDir;
-		private Controls.LinkedComboBox textSearchPattern;
-		private Controls.LinkedComboBox textSearchPath;
+		private Controls.LinkedComboBox comboSearchPattern;
+		private Controls.LinkedComboBox comboSearchPath;
 		private System.Windows.Forms.Button buttonBrowse;
 		private System.Windows.Forms.Label textProgress;
 		private System.Windows.Forms.GroupBox groupFindOptions;
-		private Controls.LinkedComboBox textDirectoryExcludes;
-		private Controls.LinkedComboBox textSearchExtensions;
+		private Controls.LinkedComboBox comboExcludeDirectories;
+		private Controls.LinkedComboBox comboSearchExtensions;
 		private System.Windows.Forms.Label labelExcludeDirectories;
 		private System.Windows.Forms.Label labelFileTypes;
 		private Controls.LinkedCheckBox checkMatchCase;
@@ -570,7 +570,7 @@ namespace FindInFiles
 		private System.Windows.Forms.Label labelReplaceLookIn;
 		private System.Windows.Forms.Label labelReplaceFindWhat;
 		private System.Windows.Forms.Button buttonReplace;
-		private System.Windows.Forms.ComboBox textReplaceWith; // NOT LINKED
+		private System.Windows.Forms.ComboBox comboReplaceWith; // NOT LINKED
 		private System.Windows.Forms.Label labelReplaceWith;
 
 	}

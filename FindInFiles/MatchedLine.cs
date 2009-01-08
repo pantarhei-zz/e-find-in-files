@@ -6,26 +6,26 @@ using System.Diagnostics;
 namespace FindInFiles
 {
 	/// <summary>
-	/// Represents a single matching line in a file
+	/// Represents a single matching substring in a single line in a single file
 	/// </summary>
-	class MatchedLine
+	class Match
 	{
 		public readonly string File;
 		public readonly int LineNumber;
 		public readonly string LineText;
-		public readonly Range<int>[] MatchingCharacters;
+		public readonly Range Characters;
 
-		public MatchedLine(string file, int lineNumber, string lineText, params Range<int>[] matchingCharacters)
+		public Match(string file, int lineNumber, string lineText, Range characters)
 		{
 			Debug.Assert(file != null);
 			Debug.Assert(lineNumber != 0);
 			Debug.Assert(lineText != null);
-			Debug.Assert(matchingCharacters != null);
+			Debug.Assert(characters != null);
 
 			File = file;
 			LineNumber = lineNumber;
 			LineText = lineText;
-			MatchingCharacters = matchingCharacters;
+			Characters = characters;
 		}
 	}
 }
