@@ -4,28 +4,17 @@ using System.Diagnostics;
 namespace FindInFiles
 {
 	/// <summary>
-	/// C# has no built in range type like ruby, so make one
+	/// Default implentation of range using an int
 	/// </summary>
-	/// <typeparam name="T">Numeric type the range is of (int, float, etc)</typeparam>
-	class Range<T> where T : IComparable<T>
+	class IntRange
 	{
-		public readonly T Lower, Upper;
+		public readonly int Lower, Upper;
 
-		public Range(T lower, T upper)
+		public IntRange(int lower, int upper)
 		{
 			Lower = lower;
 			Upper = upper;
 		}
-	}
-
-	/// <summary>
-	/// Default implentation of range using an int
-	/// </summary>
-	class Range :  Range<int>
-	{
-		public Range(int lower, int upper) :
-			base(lower, upper)
-		{ }
 	}
 
 	/// <summary>

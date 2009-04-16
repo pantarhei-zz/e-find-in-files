@@ -11,8 +11,8 @@ namespace FindInFiles
 	/// </summary>
 	interface IStringScanner
 	{
-		IEnumerable<Range> Scan( string text );
-		IEnumerable<Range> ScanAndReplace( string text, Action<string> replaceCallback );
+		IEnumerable<IntRange> Scan( string text );
+		IEnumerable<IntRange> ScanAndReplace( string text, Action<string> replaceCallback );
 	}
 
 	class RegexScanner : IStringScanner
@@ -30,12 +30,12 @@ namespace FindInFiles
 			Replacement = replacement;
 		}
 
-		public IEnumerable<Range> Scan(string text)
+		public IEnumerable<IntRange> Scan(string text)
 		{
 			return null;
 		}
 
-		public IEnumerable<Range> ScanAndReplace(string text, Action<string> replaceCallback)
+		public IEnumerable<IntRange> ScanAndReplace(string text, Action<string> replaceCallback)
 		{
 			return null;
 		}
@@ -54,15 +54,15 @@ namespace FindInFiles
 			ComparisonType = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
 		}
 
-		public IEnumerable<Range> Scan(string text)
+		public IEnumerable<IntRange> Scan(string text)
 		{
 			var startIndex = 0;
 			
 			while ((startIndex = text.IndexOf(Pattern, startIndex, ComparisonType)) != -1)
-				yield return new Range(startIndex, startIndex += Pattern.Length);
+				yield return new IntRange(startIndex, startIndex += Pattern.Length);
 		}
 
-		public IEnumerable<Range> ScanAndReplace(string text, Action<string> replaceCallback)
+		public IEnumerable<IntRange> ScanAndReplace(string text, Action<string> replaceCallback)
 		{
 			StringBuilder replaceBuffer = new StringBuilder(); ;
 
@@ -73,7 +73,7 @@ namespace FindInFiles
 				replaceBuffer.Append(text.Substring(lastIndex, nextIndex-lastIndex));
 				replaceBuffer.Append(Replacement);
 
-				yield return new Range(nextIndex, nextIndex + Replacement.Length);
+				yield return new IntRange(nextIndex, nextIndex + Replacement.Length);
 				nextIndex += Pattern.Length;
 				lastIndex = nextIndex;
 			}

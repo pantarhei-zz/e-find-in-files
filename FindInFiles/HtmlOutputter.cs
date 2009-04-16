@@ -24,7 +24,7 @@ namespace FindInFiles
 		/// <param name="line">The input text</param>
 		/// <param name="ranges">Character start/ends to surround in span tags</param>
 		/// <returns>A hilighted copy</returns>
-		private static string EscapedHighlight(string line, IEnumerable<Range> ranges)
+		private static string EscapedHighlight(string line, IEnumerable<IntRange> ranges)
 		{
 			Debug.Assert(line != null);
 			Debug.Assert(ranges != null);
