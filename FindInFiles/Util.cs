@@ -66,10 +66,10 @@ namespace FindInFiles
 		/// <returns>Clean windows friendly path</returns>
 		public static string CleanAndConvertCygpath( string path )
 		{
-			return ConvertCygpath( CleanPath( path ) );
+		    return path == null ? "" : ConvertCygpath( CleanPath( path ) );
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Converts a single line of user-input search extensions into an array of sanitized extensions
 		/// </summary>
 		/// <param name="e">The user input file extensions</param>

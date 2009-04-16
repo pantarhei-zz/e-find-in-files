@@ -272,13 +272,7 @@ namespace FindInFiles
 
 	    private void UseProjectFolder(bool manuallyInvoked)
 	    {
-	        var projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
-	        if( string.IsNullOrEmpty(projectDir) && manuallyInvoked )
-	        {
-	            MessageBox.Show( "No Project Directory is set" );
-	            return;
-	        }
-	        comboSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
+            UseFolder(manuallyInvoked, "TM_PROJECT_DIRECTORY");
 	    }
 
 	    private void UseCurrentDirectory_Click( object sender, EventArgs e )
@@ -288,13 +282,7 @@ namespace FindInFiles
 
 	    private void UseCurrentFolder(bool manuallyInvoked)
 	    {
-	        var dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
-	        if( string.IsNullOrEmpty(dir) && manuallyInvoked )
-	        {
-	            MessageBox.Show( "No Current Directory is set" );
-	            return;
-	        }
-	        comboSearchPath.Text = Util.CleanAndConvertCygpath(dir);
+	        UseFolder(manuallyInvoked, "TM_DIRECTORY");
 	    }
 
 	    private void UseCurrentWord_Click( object sender, EventArgs e )
@@ -312,6 +300,18 @@ namespace FindInFiles
 	        }
 	        SearchText = word;
 	    }
+
+        private void UseFolder(bool manuallyInvoked, string envvar)
+        {
+            var dir = Environment.GetEnvironmentVariable(envvar);
+            if (string.IsNullOrEmpty(dir) && manuallyInvoked)
+            {
+                MessageBox.Show("\"" + envvar + "\" is not set.");
+                return;
+            }
+
+            comboSearchPath.Text = Util.CleanAndConvertCygpath(dir);
+        }
 
 	    private void LoadSelectedText()
 		{
