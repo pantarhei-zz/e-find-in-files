@@ -8,9 +8,11 @@ namespace FindInFiles
 	/// <summary>
 	/// Represents all the files which match the given options
 	/// </summary>
-	static class FileMatcher
+	class FileMatcher
 	{
-		private static IEnumerable<string> FindFilesRecursive( string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter )
+	    private readonly FindFileOptions options;
+
+	    private static IEnumerable<string> FindFilesRecursive( string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter )
 		{
 			Debug.Assert( baseDirectory != null );
 			Debug.Assert( directoryFilter != null );
@@ -30,39 +32,51 @@ namespace FindInFiles
 				yield return file;
 		}
 
-		public static IEnumerable<string> Filter( FindFileOptions options )
-		{
-			Debug.Assert( options != null );
+        public FileMatcher(FindFileOptions options)
+        {
+            Debug.Assert(options != null);
 
-			if( options.Directory.Length < 1 )
-				throw new ArgumentException( "Directory cannot be empty", options.Directory );
+            if (options.Directory.Length < 1)
+                throw new ArgumentException("Directory cannot be empty", options.Directory);
 
-			if( !Directory.Exists( options.Directory ) )
-				throw new ArgumentException( "Directory does not exist" );
+            this.options = options;
+        }
 
-			// build filter predicates
+        public IEnumerable<string> Filter()
+        {
+            if (!Directory.Exists(options.Directory))
+                throw new ArgumentException("Directory does not exist");
+
+            // build filter predicates
             Predicate<string> fileFilter = (file) => true;
             Predicate<string> directoryFilter = (dir) => true;
 
-		    if (options.DirectoryExclusions.Length >= 1)
-		        directoryFilter = delegate(string dir)
-		                              {
-		                                  return !options.DirectoryExclusions.Any(
-		                                              exclusion =>
-		                                              String.Compare(Path.GetFileName(dir), exclusion,
-		                                                             StringComparison.CurrentCultureIgnoreCase) == 0);
-		                              };
+            if (options.DirectoryExclusions.Length >= 1)
+                directoryFilter = delegate(string dir)
+                {
+                    return !options.DirectoryExclusions.Any(
+                                exclusion =>
+                                String.Compare(Path.GetFileName(dir), exclusion,
+                                               StringComparison.CurrentCultureIgnoreCase) == 0);
+                };
 
-		    // check for *.* (*'s have been stripped out so it will just be a .)
-		    if (options.FileExtensions.Length >= 1 && !options.FileExtensions.Any(ext => ext == "."))
-		        fileFilter = delegate(string file)
-		                         {
-		                             return options.FileExtensions.Any(
-		                                 ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
-		                         };
+            // check for *.* (*'s have been stripped out so it will just be a .)
+            if (options.FileExtensions.Length >= 1 && !options.FileExtensions.Any(ext => ext == "."))
+                fileFilter = delegate(string file)
+                {
+                    return options.FileExtensions.Any(
+                        ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
+                };
 
-		    foreach( var file in FindFilesRecursive( options.Directory, fileFilter, directoryFilter ) )
-				yield return file;
+            foreach (var file in FindFilesRecursive(options.Directory, fileFilter, directoryFilter))
+                yield return file;
+        }
+
+		public static IEnumerable<string> Filter( FindFileOptions options )
+		{
+		    var f = new FileMatcher(options);
+            foreach (var o in f.Filter())
+                yield return o;
 		}
 	}
 }
