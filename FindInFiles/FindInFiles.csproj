@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="CountedEnumerable.cs" />
     <Compile Include="FileMatcher.cs" />
+    <Compile Include="IStringScanner.cs" />
     <Compile Include="LinqBridge.cs" />
     <Compile Include="MatchedLine.cs" />
     <Compile Include="LineMatcher.cs" />
@@ -92,7 +93,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ComboBoxHistory.cs" />
-    <Compile Include="StringScanner.cs" />
+    <Compile Include="RegexScanner.cs" />
+    <Compile Include="TextScanner.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
