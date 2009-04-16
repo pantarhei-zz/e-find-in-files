@@ -47,13 +47,12 @@ namespace FindInFiles
 
 		private static string MakeShortPath(string basePath, string fullPath)
 		{
-			if (fullPath.IndexOf(basePath, StringComparison.CurrentCultureIgnoreCase) != -1)
-				return fullPath.Substring(basePath.Length);
-			else
-				return fullPath;
+		    if (fullPath.IndexOf(basePath, StringComparison.CurrentCultureIgnoreCase) == -1)
+		        return fullPath;
+		    return fullPath.Substring(basePath.Length);
 		}
 
-		private readonly DateTime StartTime;
+	    private readonly DateTime StartTime;
 		private readonly string Pattern, Directory;
 		private readonly CountedEnumerable<string> Files;
 		private readonly CountedEnumerable<Match> Matches;
