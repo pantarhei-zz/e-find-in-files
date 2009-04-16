@@ -53,6 +53,8 @@
     </Compile>
     <Compile Include="CountedEnumerable.cs" />
     <Compile Include="FileMatcher.cs" />
+    <Compile Include="FindFileOptions.cs" />
+    <Compile Include="FindLineOptions.cs" />
     <Compile Include="IntRange.cs" />
     <Compile Include="IOutputMatches.cs" />
     <Compile Include="IStringScanner.cs" />
@@ -67,7 +69,6 @@
       <DependentUpon>FindForm.cs</DependentUpon>
     </Compile>
     <Compile Include="HtmlOutputter.cs" />
-    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FindForm.resx">
