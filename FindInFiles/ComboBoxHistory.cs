@@ -7,84 +7,97 @@ using Microsoft.Win32;
 
 namespace FindInFiles
 {
-	class ComboBoxHistory
-	{
-	    private const int HISTORY_LENGTH = 10;
+    /// <summary>
+    /// Represents values previously entered into a ComboBox and
+    /// persisted to the registry.
+    /// </summary>
+    class ComboBoxHistory
+    {
+        private const int HISTORY_LENGTH = 10;
 
-		private readonly string Name;
-		private readonly ComboBox Box;
-		private readonly List<string> Values = new List<string>();
+        private readonly string key;
+        private readonly ComboBox combobox;
+        private readonly List<string> history = new List<string>();
 
-		public ComboBoxHistory( string name, ComboBox box )
-		{
-			Debug.Assert( name != null );
-			Debug.Assert( box != null );
+        /// <summary>
+        /// Creates a new ComboBoxHistory instance for the given key name,
+        /// associated with the given combo box.
+        /// </summary>
+        public ComboBoxHistory(string key, ComboBox box)
+        {
+            Debug.Assert(key != null);
+            Debug.Assert(box != null);
 
-			Name = name;
-			Box = box;
-		}
+            this.key = key;
+            combobox = box;
+        }
 
-		public void Load( RegistryKey key )
-		{
-			Values.Clear();
-			PushBack( key.GetValue( Name ) as string );
+        public void Load(RegistryKey regkey)
+        {
+            history.Clear();
+            PushBack(regkey.GetValue(key) as string);
 
-		    for (int i = 1; i < HISTORY_LENGTH; i++)
-		        PushBack(key.GetValue(Name + i.ToString(CultureInfo.InvariantCulture)) as string);
+            for (int i = 1; i < HISTORY_LENGTH; i++)
+                PushBack(regkey.GetValue(key + i.ToString(CultureInfo.InvariantCulture)) as string);
 
-		    SetComboBox( Box );
-		}
+            SetComboBox(combobox);
+        }
 
-		public void Grab()
-		{
-			PushFront( Box.Text );
-		}
+        public void Grab()
+        {
+            PushFront(combobox.Text);
+        }
 
-	    private void PushFront( string value )
-		{
-			if( string.IsNullOrEmpty(value) )
-				return;
+        private void PushFront(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
 
-			Values.Remove( value );
-			Values.Insert( 0, value );
-			Trim();
-		}
+            history.Remove(value);
+            history.Insert(0, value);
+            Trim();
+        }
 
-	    private void PushBack( string value )
-		{
-			if( string.IsNullOrEmpty(value) )
-				return;
+        private void PushBack(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
 
-			Values.Add( value );
-			Trim();
-		}
+            history.Add(value);
+            Trim();
+        }
 
-	    private void Trim()
-		{
-			while( Values.Count > HISTORY_LENGTH )
-				Values.RemoveAt( HISTORY_LENGTH );
-		}
+        private void Trim()
+        {
+            while (history.Count > HISTORY_LENGTH)
+                history.RemoveAt(HISTORY_LENGTH);
+        }
 
-		public void Save( RegistryKey key )
-		{
-			Trim();
+        public void Save(RegistryKey regkey)
+        {
+            Trim();
+            if (history.Count == 0)
+                return;
 
-			if( Values.Count < 1 )
-				return;
+            regkey.SetValue(key, history[0]);
+            for (int i = 1; i < history.Count; i++)
+                regkey.SetValue(key + i.ToString(CultureInfo.InvariantCulture), history[i]);
+        }
 
-			key.SetValue( Name, Values[0] );
-		    for (int i = 1; i < Values.Count; i++)
-		        key.SetValue(Name + i.ToString(CultureInfo.InvariantCulture), Values[i]);
-		}
+        private void SetComboBox(ComboBox box)
+        {
+            box.BeginUpdate();
+            box.Items.Clear();
 
-	    private void SetComboBox( ComboBox box )
-		{
-			box.Items.Clear();
-			if( Values.Count < 1 )
-				return;
+            if (history.Count != 0)
+            {
+                foreach (var o in history)
+                    box.Items.Add(o);
 
-			box.Items.AddRange( Values.ToArray() );
-			box.Text = Values[0];
-		}
-	}
+                box.Text = history[0];
+            }
+
+            box.EndUpdate();
+        }
+    }
 }
