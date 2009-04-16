@@ -515,9 +515,6 @@ namespace FindInFiles
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Find/Replace in Files...";
-			this.Load += new System.EventHandler( this.OnThis_Load );
-			this.Shown += new System.EventHandler( this.OnThis_Shown );
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.OnThis_Closing );
 			this.tabControl.ResumeLayout( false );
 			this.findTab.ResumeLayout( false );
 			this.findTab.PerformLayout();

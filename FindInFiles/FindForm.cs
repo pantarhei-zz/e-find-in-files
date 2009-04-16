@@ -43,8 +43,6 @@ namespace FindInFiles
 
 	    private void SafeInvoke( Action fn )
 		{
-			Debug.Assert( fn != null );
-
 			try
 			{
 				Invoke( fn );
@@ -73,65 +71,72 @@ namespace FindInFiles
 
 		private void OnButtonFind_Click( object sender, EventArgs e )
 		{
-			// if the user presses the enter key, this fires even though the tab is wrong
-			if( tabControl.SelectedTab == replaceTab )
-			{
-				OnButtonReplace_Click( sender, e );
-				return;
-			}
-
-			SavePrefsToRegistry();
-
-			var findFileOptions = new FindFileOptions(
-				comboSearchPath.Text,
-				Util.ParseSearchExtensions(comboSearchExtensions.Text),
-				Util.ParseDirectoryExcludes(comboExcludeDirectories.Text) );
-
-			var findLineOptions = new FindLineOptions(
-				SearchText,
-				checkMatchCase.Checked,
-				checkUseRegex.Checked );
-
-			SetButtonsEnabled(false);
-
-			var finder = new Finder( findFileOptions, findLineOptions );
-			finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
-
-			// Do the find in the background
-			var b = new BackgroundWorker();
-			b.DoWork += delegate { finder.Find(); };
-			b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
-			b.RunWorkerAsync();
+		    // if the user presses the enter key, this fires even though the tab is wrong
+		    if (tabControl.SelectedTab == replaceTab)
+		        RunReplace();
+		    else
+		        RunFind();
 		}
+
+	    private void RunFind()
+	    {
+	        SavePrefsToRegistry();
+
+	        var fileOptions = new FindFileOptions(
+	            comboSearchPath.Text,
+	            Util.ParseSearchExtensions(comboSearchExtensions.Text),
+	            Util.ParseDirectoryExcludes(comboExcludeDirectories.Text) );
+
+	        var lineOptions = new FindLineOptions(
+	            SearchText,
+	            checkMatchCase.Checked,
+	            checkUseRegex.Checked );
+
+	        SetButtonsEnabled(false);
+
+	        var finder = new Finder( fileOptions, lineOptions );
+	        finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
+
+	        // Do the find in the background
+	        var b = new BackgroundWorker();
+	        b.DoWork += delegate { finder.Find(); };
+	        b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
+	        b.RunWorkerAsync();
+	    }
 
 	    private void OnButtonReplace_Click( object sender, EventArgs e )
-		{
-			SavePrefsToRegistry();
+	    {
+	        RunReplace();
+	    }
 
-			var findFileOptions = new FindFileOptions(
-				comboSearchPath.Text,
-				Util.ParseSearchExtensions(comboSearchExtensions.Text),
-				Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
+	    private void RunReplace()
+	    {
+	        SavePrefsToRegistry();
 
-			var findLineOptions = new FindLineOptions(
-				SearchText,
-				checkMatchCase.Checked,
-				checkUseRegex.Checked,
-				comboReplaceWith.Text);
+	        var findFileOptions = new FindFileOptions(
+	            comboSearchPath.Text,
+	            Util.ParseSearchExtensions(comboSearchExtensions.Text),
+	            Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
 
-			SetButtonsEnabled(false);
+	        var findLineOptions = new FindLineOptions(
+	            SearchText,
+	            checkMatchCase.Checked,
+	            checkUseRegex.Checked,
+	            comboReplaceWith.Text);
 
-			var finder = new Finder(findFileOptions, findLineOptions);
-			finder.FileScanned += (text) => SafeInvoke(() => SetProgressText(text));
+	        SetButtonsEnabled(false);
 
-			// Do the find in the background
-			var b = new BackgroundWorker();
-			b.DoWork += delegate { finder.Find(); };
-            b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
-            b.RunWorkerAsync();
-		}
+	        var finder = new Finder(findFileOptions, findLineOptions);
+	        finder.FileScanned += (text) => SafeInvoke(() => SetProgressText(text));
 
-        private void WorkerFinished()
+	        // Do the find in the background
+	        var b = new BackgroundWorker();
+	        b.DoWork += delegate { finder.Find(); };
+	        b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
+	        b.RunWorkerAsync();
+	    }
+
+	    private void WorkerFinished()
         {
             OnParamsChanged();
             SetButtonsEnabled(true);
@@ -139,36 +144,39 @@ namespace FindInFiles
             Close();
         }
 
-		private void OnThis_Load( object sender, EventArgs e )
-		{
-			// link the controls
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
 
-			checkUseRegex.Target = checkReplaceUseRegex;
-			checkMatchCase.Target = checkReplaceMatchCase;
+            // link the controls
+            checkUseRegex.Target = checkReplaceUseRegex;
+            checkMatchCase.Target = checkReplaceMatchCase;
 
-			comboSearchPattern.Target = textReplaceSearchPattern;
-			//textReplaceWith isn't linked anywhere
-			comboSearchPath.Target = textReplaceSearchPath;
-			comboSearchExtensions.Target = textReplaceSearchExtensions;
-			comboExcludeDirectories.Target = textReplaceDirectoryExcludes;
+            comboSearchPattern.Target = textReplaceSearchPattern;
+            //textReplaceWith isn't linked anywhere
+            comboSearchPath.Target = textReplaceSearchPath;
+            comboSearchExtensions.Target = textReplaceSearchExtensions;
+            comboExcludeDirectories.Target = textReplaceDirectoryExcludes;
 
-			// load prefs from registry
+            // load prefs from registry
 
-			LoadPrefsFromRegistry();
-			LoadSelectedText();
-			LoadDefaults();
+            LoadPrefsFromRegistry();
+            LoadSelectedText();
+            LoadDefaults();
 
-			OnParamsChanged();
+            OnParamsChanged();
 
-			tabControl.SelectedTab = StartInReplaceMode ? replaceTab : findTab;
+            tabControl.SelectedTab = StartInReplaceMode ? replaceTab : findTab;
 
-			OnTabChanged( this, null );
-		}
+            UpdateFormHeightForSelectedTab();
+        }
 
-		private void OnThis_Closing( object sender, FormClosingEventArgs e )
-		{
-			SavePrefsToRegistry();
-		}
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (!e.Cancel)
+                SavePrefsToRegistry();
+        }
 
 		private void OnParamsChanged()
 		{
@@ -182,9 +190,6 @@ namespace FindInFiles
 
 		private static RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
 		{
-			Debug.Assert( parent != null );
-			Debug.Assert( subKeyName != null );
-
 		    return parent.OpenSubKey( subKeyName, true ) ?? parent.CreateSubKey( subKeyName );
 		}
 
@@ -246,49 +251,69 @@ namespace FindInFiles
 
 		private void OnButtonBrowse_Click( object sender, EventArgs e )
 		{
-			var fd = new FolderBrowserDialog {
-				ShowNewFolderButton = false,
-				SelectedPath = comboSearchPath.Text
-			};
-
-			if( fd.ShowDialog() == DialogResult.OK )
-				comboSearchPath.Text = fd.SelectedPath;
+		    SelectWorkingFolder();
 		}
 
-		private void UseProjectDirectory_Click( object sender, EventArgs e )
-		{
-			var projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
-			if( string.IsNullOrEmpty(projectDir) && sender != null ) //only show message if we were invoked by a button press
-			{
-				MessageBox.Show( "No Project Directory is set" );
-				return;
-			}
-			comboSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
-		}
+	    private void SelectWorkingFolder()
+	    {
+	        var fd = new FolderBrowserDialog {
+	                                             ShowNewFolderButton = false,
+	                                             SelectedPath = comboSearchPath.Text
+	                                         };
 
-		private void UseCurrentDirectory_Click( object sender, EventArgs e )
-		{
-			var dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
-			if( string.IsNullOrEmpty(dir) && sender != null ) //only show message if we were invoked by a button press
-			{
-				MessageBox.Show( "No Current Directory is set" );
-				return;
-			}
-			comboSearchPath.Text = Util.CleanAndConvertCygpath(dir);
-		}
+	        if( fd.ShowDialog() == DialogResult.OK )
+	            comboSearchPath.Text = fd.SelectedPath;
+	    }
 
-		private void UseCurrentWord_Click( object sender, EventArgs e )
-		{
-			string word = Environment.GetEnvironmentVariable( "TM_CURRENT_WORD" );
-			if( string.IsNullOrEmpty(word) && sender != null ) //only show message if we were invoked by a button press
-			{
-				MessageBox.Show( "No Current Word is set" );
-				return;
-			}
-			SearchText = word;
-		}
+	    private void UseProjectDirectory_Click( object sender, EventArgs e )
+	    {
+	        UseProjectFolder(true);
+	    }
 
-		private void LoadSelectedText()
+	    private void UseProjectFolder(bool manuallyInvoked)
+	    {
+	        var projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
+	        if( string.IsNullOrEmpty(projectDir) && manuallyInvoked )
+	        {
+	            MessageBox.Show( "No Project Directory is set" );
+	            return;
+	        }
+	        comboSearchPath.Text = Util.CleanAndConvertCygpath(projectDir);
+	    }
+
+	    private void UseCurrentDirectory_Click( object sender, EventArgs e )
+	    {
+	        UseCurrentFolder(true);
+	    }
+
+	    private void UseCurrentFolder(bool manuallyInvoked)
+	    {
+	        var dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
+	        if( string.IsNullOrEmpty(dir) && manuallyInvoked )
+	        {
+	            MessageBox.Show( "No Current Directory is set" );
+	            return;
+	        }
+	        comboSearchPath.Text = Util.CleanAndConvertCygpath(dir);
+	    }
+
+	    private void UseCurrentWord_Click( object sender, EventArgs e )
+	    {
+	        UseSelectedWord(true);
+	    }
+
+	    private void UseSelectedWord(bool manuallyInvoked)
+	    {
+	        string word = Environment.GetEnvironmentVariable( "TM_CURRENT_WORD" );
+	        if( string.IsNullOrEmpty(word) && manuallyInvoked )
+	        {
+	            MessageBox.Show( "No Current Word is set" );
+	            return;
+	        }
+	        SearchText = word;
+	    }
+
+	    private void LoadSelectedText()
 		{
 			string text = Environment.GetEnvironmentVariable( "TM_SELECTED_TEXT" );
 			if( !string.IsNullOrEmpty(text) )
@@ -297,13 +322,13 @@ namespace FindInFiles
 
 		private void LoadDefaults()
 		{
-			if( SearchText.Length < 1 || textReplaceSearchPattern.Text.Length < 1 )
-				UseCurrentWord_Click( null, null );
+		    if (SearchText.Length < 1 || textReplaceSearchPattern.Text.Length < 1)
+		        UseSelectedWord(false);
 
-			if( comboSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1 )
-				UseProjectDirectory_Click( null, null );
+		    if (comboSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1)
+		        UseProjectFolder(false);
 
-			if( comboSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1 )
+		    if( comboSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1 )
 				comboSearchExtensions.Text = "*.*";
 		}
 
@@ -316,25 +341,31 @@ namespace FindInFiles
 			return base.ProcessCmdKey( ref msg, keyData );
 		}
 
-		private void OnThis_Shown( object sender, EventArgs e )
-		{
-			comboSearchPattern.Select( 0, SearchText.Length );
-			comboSearchPattern.Focus();
-		}
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            comboSearchPattern.Select(0, SearchText.Length);
+            comboSearchPattern.Focus();
+        }
 
 		private void OnTabChanged( object sender, EventArgs e )
 		{
-			if( tabControl.SelectedTab == replaceTab )
-			{
-				Height = REPLACE_HEIGHT;
-				tabControl.Height = REPLACE_HEIGHT - 25;
-				replaceTab.Height = 305;
-			}
-			else
-			{
-				Height = FIND_HEIGHT;
-				tabControl.Height = FIND_HEIGHT - 25;
-			}
+		    UpdateFormHeightForSelectedTab();
 		}
+
+	    private void UpdateFormHeightForSelectedTab()
+	    {
+	        if( tabControl.SelectedTab == replaceTab )
+	        {
+	            Height = REPLACE_HEIGHT;
+	            tabControl.Height = REPLACE_HEIGHT - 25;
+	            replaceTab.Height = 305;
+	        }
+	        else
+	        {
+	            Height = FIND_HEIGHT;
+	            tabControl.Height = FIND_HEIGHT - 25;
+	        }
+	    }
 	}
 }
