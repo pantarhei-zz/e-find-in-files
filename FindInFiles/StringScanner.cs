@@ -5,9 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace FindInFiles
 {
-
 	/// <summary>
-	/// abstracts the differences between searching with a string and with a regex so they both can be used in the same way
+	/// Abstracts the differences between searching with a string and with a regex so they both can be used in the same way
 	/// </summary>
 	interface IStringScanner
 	{
@@ -56,7 +55,7 @@ namespace FindInFiles
 
 		public IEnumerable<IntRange> Scan(string text)
 		{
-			var startIndex = 0;
+			int startIndex = 0;
 			
 			while ((startIndex = text.IndexOf(Pattern, startIndex, ComparisonType)) != -1)
 				yield return new IntRange(startIndex, startIndex += Pattern.Length);
@@ -64,24 +63,24 @@ namespace FindInFiles
 
 		public IEnumerable<IntRange> ScanAndReplace(string text, Action<string> replaceCallback)
 		{
-			StringBuilder replaceBuffer = new StringBuilder(); ;
+			StringBuilder sb = new StringBuilder();
 
-			int lastIndex = 0, nextIndex = 0;
+		    int lastIndex = 0, nextIndex = 0;
 
 			while ((nextIndex = text.IndexOf(Pattern, nextIndex, ComparisonType)) != -1)
 			{
-				replaceBuffer.Append(text.Substring(lastIndex, nextIndex-lastIndex));
-				replaceBuffer.Append(Replacement);
+				sb.Append(text.Substring(lastIndex, nextIndex-lastIndex));
+				sb.Append(Replacement);
 
 				yield return new IntRange(nextIndex, nextIndex + Replacement.Length);
 				nextIndex += Pattern.Length;
 				lastIndex = nextIndex;
 			}
 
-			replaceBuffer.Append(text.Substring(lastIndex)); //stick the trailing bit on
+			sb.Append(text.Substring(lastIndex)); //stick the trailing bit on
 
-			if( replaceBuffer != null && replaceCallback != null )
-				replaceCallback( replaceBuffer.ToString() );
+			if( replaceCallback != null )
+				replaceCallback( sb.ToString() );
 		}
 	}
 }
