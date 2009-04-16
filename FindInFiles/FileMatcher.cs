@@ -44,20 +44,24 @@ namespace FindInFiles
             Predicate<string> fileFilter = (file) => true;
             Predicate<string> directoryFilter = (dir) => true;
 
-		    if( options.DirectoryExclusions.Length < 1 )
-				directoryFilter = ( dir ) => true;
-			else
-				directoryFilter = ( dir ) => !options.DirectoryExclusions.Any(
-					exclusion => String.Compare( Path.GetFileName( dir ), exclusion, StringComparison.CurrentCultureIgnoreCase ) == 0 );
+		    if (options.DirectoryExclusions.Length >= 1)
+		        directoryFilter = delegate(string dir)
+		                              {
+		                                  return !options.DirectoryExclusions.Any(
+		                                              exclusion =>
+		                                              String.Compare(Path.GetFileName(dir), exclusion,
+		                                                             StringComparison.CurrentCultureIgnoreCase) == 0);
+		                              };
 
-			// check for *.* (*'s have been stripped out so it will just be a .)
-			if( options.FileExtensions.Length < 1 || options.FileExtensions.Any( ext => ext == "." ) )
-				fileFilter = ( file ) => true;
-			else
-				fileFilter = ( file ) => options.FileExtensions.Any(
-					ext => file.EndsWith( ext, StringComparison.CurrentCultureIgnoreCase ) );
+		    // check for *.* (*'s have been stripped out so it will just be a .)
+		    if (options.FileExtensions.Length >= 1 && !options.FileExtensions.Any(ext => ext == "."))
+		        fileFilter = delegate(string file)
+		                         {
+		                             return options.FileExtensions.Any(
+		                                 ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
+		                         };
 
-			foreach( var file in FindFilesRecursive( options.Directory, fileFilter, directoryFilter ) )
+		    foreach( var file in FindFilesRecursive( options.Directory, fileFilter, directoryFilter ) )
 				yield return file;
 		}
 	}
