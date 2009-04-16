@@ -37,30 +37,23 @@ namespace FindInFiles
 			ExcludeDirectoriesHistory = new ComboBoxHistory( "textDirectoryExcludes", comboExcludeDirectories );
 		}
 
-		private string TrimLeadingText(string str, int length)
+		private static string TrimLeadingText(string str, int length)
 		{
 			Debug.Assert( str != null );
 			Debug.Assert( length > 3 );
 
-			if (str.Length > length)
-				return "..." + str.Substring(str.Length - (length - 3), (length - 3));
-			else
-				return str;
+		    if (str.Length <= length)
+		        return str;
+		    return "..." + str.Substring(str.Length - (length - 3), (length - 3));
 		}
 
-		public void SetProgressText( string txt )
+	    private void SetProgressText( string txt )
 		{
 			Debug.Assert( txt != null );
 			textProgress.Text = TrimLeadingText(txt, 40);
 		}
 
-		public void SetReplaceProgressText( string txt )
-		{
-			Debug.Assert( txt != null );
-			textReplaceProgress.Text = TrimLeadingText(txt, 40);
-		}
-
-		public void SafeInvoke( Action fn )
+	    private void SafeInvoke( Action fn )
 		{
 			Debug.Assert( fn != null );
 
@@ -73,17 +66,13 @@ namespace FindInFiles
 			/* swallow these as the form is going away */
 		}
 
-		private bool ButtonsEnabled
-		{
-			set
-			{
-				buttonFind.Enabled = 
-				buttonReplace.Enabled =
-					value;
-			}
-		}
+	    private void SetButtonsEnabled(bool value)
+	    {
+	        buttonFind.Enabled = value;
+	        buttonReplace.Enabled = value;
+	    }
 
-		private string SearchText
+	    private string SearchText
 		{
 			get { return comboSearchPattern.Text; }
 			set { comboSearchPattern.Text = value; }
@@ -115,7 +104,7 @@ namespace FindInFiles
 				checkMatchCase.Checked,
 				checkUseRegex.Checked );
 
-			ButtonsEnabled = false;
+			SetButtonsEnabled(false);
 
 			var finder = new Finder( findFileOptions, findLineOptions );
 			finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
@@ -125,8 +114,8 @@ namespace FindInFiles
 			b.DoWork += ( _sender, _eventargs ) => finder.Find();
 			b.RunWorkerCompleted += ( _sender, _eventargs ) => {
 				SafeInvoke( () => {
-					OnParamsChanged( null, null );
-					ButtonsEnabled = true;
+					OnParamsChanged();
+					SetButtonsEnabled(true);
 					SetProgressText( "" );
 					Close();
 				} );
@@ -149,7 +138,7 @@ namespace FindInFiles
 				checkUseRegex.Checked,
 				comboReplaceWith.Text);
 
-			ButtonsEnabled = false;
+			SetButtonsEnabled(false);
 
 			var finder = new Finder(findFileOptions, findLineOptions);
 			finder.FileScanned += (text) => SafeInvoke(() => SetProgressText(text));
@@ -161,8 +150,8 @@ namespace FindInFiles
 			{
 				SafeInvoke(() =>
 				{
-					OnParamsChanged(null, null);
-					ButtonsEnabled = true;
+					OnParamsChanged();
+					SetButtonsEnabled(true);
 					SetProgressText("");
 					Close();
 				});
@@ -189,12 +178,9 @@ namespace FindInFiles
 			LoadSelectedText();
 			LoadDefaults();
 
-			OnParamsChanged( this, null );
+			OnParamsChanged();
 
-			if( StartInReplaceMode )
-				tabControl.SelectedTab = replaceTab;
-			else
-				tabControl.SelectedTab = findTab;
+			tabControl.SelectedTab = StartInReplaceMode ? replaceTab : findTab;
 
 			OnTabChanged( this, null );
 		}
@@ -204,9 +190,9 @@ namespace FindInFiles
 			SavePrefsToRegistry();
 		}
 
-		private void OnParamsChanged( object sender, EventArgs e )
+		private void OnParamsChanged()
 		{
-			ButtonsEnabled = IsValid();
+			SetButtonsEnabled(IsValid());
 		}
 
 		private bool IsValid()
@@ -221,11 +207,7 @@ namespace FindInFiles
 			Debug.Assert( parent != null );
 			Debug.Assert( subKeyName != null );
 
-			var subKey = parent.OpenSubKey( subKeyName, true );
-			if( subKey == null )
-				subKey = parent.CreateSubKey( subKeyName );
-
-			return subKey;
+		    return parent.OpenSubKey( subKeyName, true ) ?? parent.CreateSubKey( subKeyName );
 		}
 
 		private static RegistryKey OpenPrefsRegistryKey()
@@ -298,7 +280,7 @@ namespace FindInFiles
 		private void UseProjectDirectory_Click( object sender, EventArgs e )
 		{
 			var projectDir = Environment.GetEnvironmentVariable( "TM_PROJECT_DIRECTORY" );
-			if( projectDir == null || projectDir.Length < 1 && sender != null ) //only show message if we were invoked by a button press
+			if( string.IsNullOrEmpty(projectDir) && sender != null ) //only show message if we were invoked by a button press
 			{
 				MessageBox.Show( "No Project Directory is set" );
 				return;
@@ -309,7 +291,7 @@ namespace FindInFiles
 		private void UseCurrentDirectory_Click( object sender, EventArgs e )
 		{
 			var dir = Environment.GetEnvironmentVariable( "TM_DIRECTORY" );
-			if( dir == null || dir.Length < 1 && sender != null ) //only show message if we were invoked by a button press
+			if( string.IsNullOrEmpty(dir) && sender != null ) //only show message if we were invoked by a button press
 			{
 				MessageBox.Show( "No Current Directory is set" );
 				return;
@@ -320,7 +302,7 @@ namespace FindInFiles
 		private void UseCurrentWord_Click( object sender, EventArgs e )
 		{
 			string word = Environment.GetEnvironmentVariable( "TM_CURRENT_WORD" );
-			if( word == null || word.Length < 1 && sender != null ) //only show message if we were invoked by a button press
+			if( string.IsNullOrEmpty(word) && sender != null ) //only show message if we were invoked by a button press
 			{
 				MessageBox.Show( "No Current Word is set" );
 				return;
@@ -331,7 +313,7 @@ namespace FindInFiles
 		private void LoadSelectedText()
 		{
 			string text = Environment.GetEnvironmentVariable( "TM_SELECTED_TEXT" );
-			if( text != null && text.Length > 0 )
+			if( !string.IsNullOrEmpty(text) )
 				SearchText = text;
 		}
 
