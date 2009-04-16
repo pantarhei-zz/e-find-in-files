@@ -8,8 +8,8 @@ namespace FindInFiles
 	/// </summary>
 	class Finder
 	{
-		public readonly FindLineOptions FindLineOptions;
-		public readonly FindFileOptions FindFileOptions;
+        private readonly FindLineOptions FindLineOptions;
+        private readonly FindFileOptions FindFileOptions;
 
 		public event ScanningFileCallback FileScanned;
 
