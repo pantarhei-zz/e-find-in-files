@@ -5,17 +5,10 @@ using System.Diagnostics;
 
 namespace FindInFiles
 {
-    internal interface IOutputMatch
-    {
-        void OutputHeader();
-        void OutputMatch( Match match );
-        void OutputFooter();
-    }
-
     /// <summary>
 	/// Outputs things to STDOUT in HTML format
 	/// </summary>
-	class HtmlOutputter : IOutputMatch
+	class HtmlOutputter : IOutputMatches
     {
 		private static string EscapeHtml(string x)
 		{

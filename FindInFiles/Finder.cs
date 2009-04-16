@@ -35,7 +35,7 @@ namespace FindInFiles
 		    var files = FileMatcher.Filter(FindFileOptions).AsCounted();
 		    var matches = LineMatcher.Filter(files, FindLineOptions).AsCounted();
 
-		    IOutputMatch h = new HtmlOutputter(FindLineOptions.Pattern, FindFileOptions.Directory, files, matches);
+		    IOutputMatches h = new HtmlOutputter(FindLineOptions.Pattern, FindFileOptions.Directory, files, matches);
 		    h.OutputHeader();
 		    foreach (var match in matches)
 		        h.OutputMatch(match);
