@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
