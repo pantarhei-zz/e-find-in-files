@@ -12,7 +12,7 @@ namespace FindInFiles.Controls
 			set
 			{
 				if( value == null )
-					throw new ArgumentNullException( "Target" );
+					throw new ArgumentNullException( "value" );
 
 				if( target != null )
 					return;
@@ -37,7 +37,7 @@ namespace FindInFiles.Controls
 			}
 		}
 
-		protected void SetText( string value )
+	    private void SetText( string value )
 		{
 			base.Text = value;
 		}
@@ -50,7 +50,7 @@ namespace FindInFiles.Controls
 			// set the text items of the linked box
 			if( target != null )
 			{
-				target.Text = this.Text;
+				target.Text = Text;
 
 				target.Items.Clear();
 				var newItems = new object[Items.Count];

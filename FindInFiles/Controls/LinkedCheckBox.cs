@@ -22,7 +22,7 @@ namespace FindInFiles.Controls
 		protected override void OnCheckedChanged( EventArgs e )
 		{
 			base.OnCheckedChanged( e );
-			target.Checked = this.Checked;
+			target.Checked = Checked;
 		}
 	}
 }
