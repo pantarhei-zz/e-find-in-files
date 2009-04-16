@@ -9,7 +9,7 @@ namespace FindInFiles
 {
 	class ComboBoxHistory
 	{
-		public const int HISTORY_LENGTH = 10;
+	    private const int HISTORY_LENGTH = 10;
 
 		private readonly string Name;
 		private readonly ComboBox Box;
@@ -29,12 +29,10 @@ namespace FindInFiles
 			Values.Clear();
 			PushBack( key.GetValue( Name ) as string );
 
-			for( int i = 1; i < HISTORY_LENGTH; i++ )
-			{
-				PushBack( key.GetValue( Name + i.ToString(CultureInfo.InvariantCulture) ) as string );
-			}
+		    for (int i = 1; i < HISTORY_LENGTH; i++)
+		        PushBack(key.GetValue(Name + i.ToString(CultureInfo.InvariantCulture)) as string);
 
-			SetComboBox( Box );
+		    SetComboBox( Box );
 		}
 
 		public void Grab()
@@ -42,28 +40,26 @@ namespace FindInFiles
 			PushFront( Box.Text );
 		}
 
-		public void PushFront( string value )
+	    private void PushFront( string value )
 		{
-			if( value == null || value.Length < 1 )
+			if( string.IsNullOrEmpty(value) )
 				return;
 
 			Values.Remove( value );
 			Values.Insert( 0, value );
-
 			Trim();
 		}
 
-		public void PushBack( string value )
+	    private void PushBack( string value )
 		{
-			if( value == null || value.Length < 1 )
+			if( string.IsNullOrEmpty(value) )
 				return;
 
 			Values.Add( value );
-
 			Trim();
 		}
 
-		public void Trim()
+	    private void Trim()
 		{
 			while( Values.Count > HISTORY_LENGTH )
 				Values.RemoveAt( HISTORY_LENGTH );
@@ -77,24 +73,17 @@ namespace FindInFiles
 				return;
 
 			key.SetValue( Name, Values[0] );
-			for( int i = 1; i < Values.Count; i++ )
-			{
-				key.SetValue( Name + i.ToString(CultureInfo.InvariantCulture), Values[i] );
-			}
+		    for (int i = 1; i < Values.Count; i++)
+		        key.SetValue(Name + i.ToString(CultureInfo.InvariantCulture), Values[i]);
 		}
 
-		public string[] ToArray()
-		{
-			return Values.ToArray();
-		}
-
-		public void SetComboBox( System.Windows.Forms.ComboBox box )
+	    private void SetComboBox( ComboBox box )
 		{
 			box.Items.Clear();
 			if( Values.Count < 1 )
 				return;
 
-			box.Items.AddRange( ToArray() );
+			box.Items.AddRange( Values.ToArray() );
 			box.Text = Values[0];
 		}
 	}
