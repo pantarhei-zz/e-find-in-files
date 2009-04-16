@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Security.Permissions;
+using JetBrains.Annotations;
 using Microsoft.Win32;
 using System.Diagnostics;
 
@@ -12,8 +13,6 @@ namespace FindInFiles
 		private const int FIND_HEIGHT = 336;
 		private const int REPLACE_HEIGHT = 356;
 
-		// ----- Member Variables ---------------------------------------------
-
 		private readonly ComboBoxHistory SearchPathHistory;
 		private readonly ComboBoxHistory SearchPatternHistory;
 		private readonly ComboBoxHistory ReplaceWithHistory;
@@ -22,7 +21,6 @@ namespace FindInFiles
 
 		private readonly bool StartInReplaceMode;
 
-		// ----- Member Functions ---------------------------------------------
 
 		public FindForm( bool startInReplaceMode )
 		{
@@ -37,20 +35,10 @@ namespace FindInFiles
 			ExcludeDirectoriesHistory = new ComboBoxHistory( "textDirectoryExcludes", comboExcludeDirectories );
 		}
 
-		private static string TrimLeadingText(string str, int length)
-		{
-			Debug.Assert( str != null );
-			Debug.Assert( length > 3 );
-
-		    if (str.Length <= length)
-		        return str;
-		    return "..." + str.Substring(str.Length - (length - 3), (length - 3));
-		}
-
-	    private void SetProgressText( string txt )
+	    private void SetProgressText([NotNull] string txt )
 		{
 			Debug.Assert( txt != null );
-			textProgress.Text = TrimLeadingText(txt, 40);
+			textProgress.Text = Util.TrimLeadingText(txt, 40);
 		}
 
 	    private void SafeInvoke( Action fn )
@@ -111,19 +99,12 @@ namespace FindInFiles
 
 			// Do the find in the background
 			var b = new BackgroundWorker();
-			b.DoWork += ( _sender, _eventargs ) => finder.Find();
-			b.RunWorkerCompleted += ( _sender, _eventargs ) => {
-				SafeInvoke( () => {
-					OnParamsChanged();
-					SetButtonsEnabled(true);
-					SetProgressText( "" );
-					Close();
-				} );
-			};
+			b.DoWork += delegate { finder.Find(); };
+			b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
 			b.RunWorkerAsync();
 		}
 
-		private void OnButtonReplace_Click( object sender, EventArgs e )
+	    private void OnButtonReplace_Click( object sender, EventArgs e )
 		{
 			SavePrefsToRegistry();
 
@@ -145,19 +126,18 @@ namespace FindInFiles
 
 			// Do the find in the background
 			var b = new BackgroundWorker();
-			b.DoWork += (_sender, _eventargs) => finder.Find();
-			b.RunWorkerCompleted += (_sender, _eventargs) =>
-			{
-				SafeInvoke(() =>
-				{
-					OnParamsChanged();
-					SetButtonsEnabled(true);
-					SetProgressText("");
-					Close();
-				});
-			};
-			b.RunWorkerAsync();
+			b.DoWork += delegate { finder.Find(); };
+            b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
+            b.RunWorkerAsync();
 		}
+
+        private void WorkerFinished()
+        {
+            OnParamsChanged();
+            SetButtonsEnabled(true);
+            SetProgressText("");
+            Close();
+        }
 
 		private void OnThis_Load( object sender, EventArgs e )
 		{
@@ -199,8 +179,6 @@ namespace FindInFiles
 		{
 			return comboSearchPath.Text.Length > 0 && SearchText.Length > 0;
 		}
-
-		// ------ Preference Loading Utils ------------------------------------
 
 		private static RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
 		{
@@ -273,7 +251,7 @@ namespace FindInFiles
 				SelectedPath = comboSearchPath.Text
 			};
 
-			if( fd.ShowDialog().IsOK() )
+			if( fd.ShowDialog() == DialogResult.OK )
 				comboSearchPath.Text = fd.SelectedPath;
 		}
 

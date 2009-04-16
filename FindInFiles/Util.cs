@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Diagnostics;
+using JetBrains.Annotations;
 
 // Extensions
 namespace System.Runtime.CompilerServices
@@ -13,12 +14,7 @@ namespace FindInFiles
 {
 	public static class Util
 	{
-		public static bool IsOK( this System.Windows.Forms.DialogResult result )
-		{
-			return result == System.Windows.Forms.DialogResult.OK;
-		}
-
-		public static string F( this string formatString, params object[] args )
+	    public static string F( this string formatString, params object[] args )
 		{
 			return String.Format( formatString, args );
 		}
@@ -92,5 +88,13 @@ namespace FindInFiles
 		{
 			return e.Split( new[] { ',', ';' } );
 		}
+
+	    public static string TrimLeadingText([NotNull] string str, int length)
+	    {
+	        if (str.Length <= length || str.Length<=3)
+	            return str;
+
+	        return "..." + str.Substring(str.Length - (length - 3), (length - 3));
+	    }
 	}
 }
