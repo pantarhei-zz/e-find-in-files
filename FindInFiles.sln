@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindInFiles", "FindInFiles\FindInFiles.csproj", "{71760719-225D-48F6-9E7C-07AD2743786B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFindInFiles", "TestFindInFiles\TestFindInFiles.csproj", "{CC69EF05-0339-4E55-B428-F45B5859E3BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +20,10 @@ Global
 		{71760719-225D-48F6-9E7C-07AD2743786B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71760719-225D-48F6-9E7C-07AD2743786B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71760719-225D-48F6-9E7C-07AD2743786B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC69EF05-0339-4E55-B428-F45B5859E3BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC69EF05-0339-4E55-B428-F45B5859E3BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC69EF05-0339-4E55-B428-F45B5859E3BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC69EF05-0339-4E55-B428-F45B5859E3BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
