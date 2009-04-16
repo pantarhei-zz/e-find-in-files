@@ -41,9 +41,10 @@ namespace FindInFiles
 				throw new ArgumentException( "Directory does not exist" );
 
 			// build filter predicates
-			Predicate<string> fileFilter, directoryFilter;
+            Predicate<string> fileFilter = (file) => true;
+            Predicate<string> directoryFilter = (dir) => true;
 
-			if( options.DirectoryExclusions.Length < 1 )
+		    if( options.DirectoryExclusions.Length < 1 )
 				directoryFilter = ( dir ) => true;
 			else
 				directoryFilter = ( dir ) => !options.DirectoryExclusions.Any(
