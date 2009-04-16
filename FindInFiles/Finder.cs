@@ -32,14 +32,14 @@ namespace FindInFiles
 
 		public void Find()
 		{
-			var files = FileMatcher.Filter( FindFileOptions ).AsCounted();
-			var matches = LineMatcher.Filter( files, FindLineOptions ).AsCounted();
+		    var files = FileMatcher.Filter(FindFileOptions).AsCounted();
+		    var matches = LineMatcher.Filter(files, FindLineOptions).AsCounted();
 
-			using( var h = new HtmlOutputter( FindLineOptions.Pattern, FindFileOptions.Directory, files, matches ) )
-			{
-				foreach( var match in matches )
-					h.Write( match );
-			}
+		    IOutputMatch h = new HtmlOutputter(FindLineOptions.Pattern, FindFileOptions.Directory, files, matches);
+		    h.OutputHeader();
+		    foreach (var match in matches)
+		        h.OutputMatch(match);
+		    h.OutputFooter();
 		}
 	}
 }

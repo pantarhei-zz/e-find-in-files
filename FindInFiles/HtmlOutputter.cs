@@ -5,11 +5,18 @@ using System.Diagnostics;
 
 namespace FindInFiles
 {
-	/// <summary>
+    internal interface IOutputMatch
+    {
+        void OutputHeader();
+        void OutputMatch( Match match );
+        void OutputFooter();
+    }
+
+    /// <summary>
 	/// Outputs things to STDOUT in HTML format
 	/// </summary>
-	class HtmlOutputter : IDisposable
-	{
+	class HtmlOutputter : IOutputMatch
+    {
 		private static string EscapeHtml(string x)
 		{
 			return x.
@@ -70,26 +77,15 @@ namespace FindInFiles
 			Directory = directory;
 			Files = files;
 			Matches = matches;
-
-			Console.WriteLine( "<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>" );
-			Console.WriteLine( "<pre>" );
 		}
 
-		public void Dispose()
-		{
-			var timeTaken = DateTime.Now - StartTime;
+        public void OutputHeader()
+        {
+            Console.WriteLine("<style type=text/css>PRE{ font-size:11px; } PRE A{ text-decoration:none; } PRE A:HOVER{ background-color:#eeeeee; }</style>");
+            Console.WriteLine("<pre>");
+        }
 
-			Console.WriteLine("--------------------------------------------------------------------------------");
-
-			Console.WriteLine( "Searched For '{0}' in {1}", Pattern, Directory);
-
-			Console.WriteLine( "{0} Matches found. {1} Files Scanned in {2}s",
-				Matches.Count, Files.Count, timeTaken.TotalSeconds);
-
-			Console.WriteLine( "</pre>");
-		}
-
-		public void Write( Match match )
+        public void OutputMatch( Match match )
 		{
 			Console.WriteLine( 
 				"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
@@ -99,5 +95,16 @@ namespace FindInFiles
 				EscapedHighlight(match.LineText, new[]{ match.Characters })
 			);
 		}
-	}
+
+        public void OutputFooter()
+        {
+            var timeTaken = DateTime.Now - StartTime;
+
+            Console.WriteLine("--------------------------------------------------------------------------------");
+            Console.WriteLine("Searched For '{0}' in {1}", Pattern, Directory);
+            Console.WriteLine("{0} Matches found. {1} Files Scanned in {2}s",
+                Matches.Count, Files.Count, timeTaken.TotalSeconds);
+            Console.WriteLine("</pre>");
+        }
+    }
 }
