@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="CountedEnumerable.cs" />
     <Compile Include="FileMatcher.cs" />
+    <Compile Include="IntRange.cs" />
     <Compile Include="IStringScanner.cs" />
     <Compile Include="LinqBridge.cs" />
     <Compile Include="MatchedLine.cs" />
