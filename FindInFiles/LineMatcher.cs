@@ -9,18 +9,10 @@ namespace FindInFiles
 	/// </summary>
 	static class LineMatcher
 	{
-		static IStringScanner CreateScanner(FindLineOptions options)
-		{
-			if (options.UseRegex)
-				return new RegexScanner(options.Pattern, options.Replacement, options.MatchCase);
-			else
-				return new TextScanner(options.Pattern, options.Replacement, options.MatchCase);
-		}
-
-		// worker function which scans all the files and matches all the lines
+	    // worker function which scans all the files and matches all the lines
 		public static IEnumerable<Match> Filter(IEnumerable<string> files, FindLineOptions options )
 		{
-			var scanner = CreateScanner(options);
+			var scanner = options.CreateScanner();
 			bool performReplace = options.Replacement != null; 
 
 			foreach(string file in files)

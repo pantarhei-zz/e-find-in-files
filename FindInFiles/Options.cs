@@ -51,5 +51,12 @@ namespace FindInFiles
 
 			Replacement = replacement;
 		}
+
+	    public IStringScanner CreateScanner()
+	    {
+	        if (UseRegex)
+	            return new RegexScanner(Pattern, Replacement, MatchCase);
+	        return new TextScanner(Pattern, Replacement, MatchCase);
+	    }
 	}
 }
