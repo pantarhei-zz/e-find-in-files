@@ -41,7 +41,6 @@ namespace FindInFiles
 			Pattern = pattern;
 			MatchCase = matchCase;
 			UseRegex = useRegex;
-
 			Replacement = null;
 		}
 
