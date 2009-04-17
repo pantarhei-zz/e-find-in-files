@@ -5,19 +5,26 @@ using System.Threading;
 
 namespace FindInFiles
 {
-    class CountedEnumerable<T> : IEnumerable<T>
+    internal interface ICountedEnumerable<T> : IEnumerable<T>
+    {
+        int Count { get; }
+    }
+
+    class CountedEnumerable<T> : ICountedEnumerable<T>
     {
         private int m_count;
-        private IEnumerable<T> SourceEnumerable { get; set; }
+        private readonly IEnumerable<T> sourceEnumerable;
 
         public int Count { get { return m_count; } }
 
         public CountedEnumerable(IEnumerable<T> sourceEnumerable)
-        { SourceEnumerable = sourceEnumerable; }
+        {
+            this.sourceEnumerable = sourceEnumerable;
+        }
 
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (var item in SourceEnumerable)
+            foreach (var item in sourceEnumerable)
             {
                 Interlocked.Increment(ref m_count);
                 yield return item;

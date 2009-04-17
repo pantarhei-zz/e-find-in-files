@@ -52,24 +52,25 @@ namespace FindInFiles
 		    return fullPath.Substring(basePath.Length);
 		}
 
-	    private readonly DateTime StartTime;
-		private readonly string Pattern, Directory;
-		private readonly CountedEnumerable<string> Files;
-		private readonly CountedEnumerable<Match> Matches;
+	    private readonly DateTime startTime;
+		private readonly string pattern;
+        private readonly string directory;
+        private readonly ICountedEnumerable<string> files;
+        private readonly ICountedEnumerable<Match> matches;
 
-		public HtmlOutputter( string pattern, string directory, CountedEnumerable<string> files, CountedEnumerable<Match> matches )
+		public HtmlOutputter( string pattern, string directory, ICountedEnumerable<string> files, ICountedEnumerable<Match> matches )
 		{
-			StartTime = DateTime.Now;
+			startTime = DateTime.Now;
 
 			Debug.Assert( pattern != null );
 			Debug.Assert( directory != null );
 			Debug.Assert( files != null );
 			Debug.Assert( matches != null );
 
-			Pattern = pattern;
-			Directory = directory;
-			Files = files;
-			Matches = matches;
+			this.pattern = pattern;
+			this.directory = directory;
+			this.files = files;
+			this.matches = matches;
 		}
 
         public void OutputHeader()
@@ -84,19 +85,19 @@ namespace FindInFiles
 				"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
 				match.File,
 				match.LineNumber,
-				MakeShortPath( Directory, match.File ),
+				MakeShortPath( directory, match.File ),
 				EscapedHighlight(match.LineText, new[]{ match.Characters })
 			);
 		}
 
         public void OutputFooter()
         {
-            var timeTaken = DateTime.Now - StartTime;
+            var timeTaken = DateTime.Now - startTime;
 
             Console.WriteLine("--------------------------------------------------------------------------------");
-            Console.WriteLine("Searched For '{0}' in {1}", Pattern, Directory);
-            Console.WriteLine("{0} Matches found. {1} Files Scanned in {2}s",
-                Matches.Count, Files.Count, timeTaken.TotalSeconds);
+            Console.WriteLine("Searched For '{0}' in {1}", pattern, directory);
+            Console.WriteLine("{0} matches found, {1} files Scanned in {2}s.",
+                matches.Count, files.Count, timeTaken.TotalSeconds);
             Console.WriteLine("</pre>");
         }
     }

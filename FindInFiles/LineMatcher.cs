@@ -31,7 +31,7 @@ namespace FindInFiles
                 {
                     int number = lineNumber;
                     var ranges = performReplace ?
-                        scanner.ScanAndReplace(lines[lineNumber], (s) => lines[number] = s).AsCounted() :
+                        scanner.ScanAndReplace(lines[lineNumber], s => lines[number] = s).AsCounted() :
                         scanner.Scan(lines[lineNumber]).AsCounted();
 
                     foreach (var range in ranges)
