@@ -203,7 +203,7 @@ namespace FindInFiles
             // comboExcludeDirectories
             // 
             this.comboExcludeDirectories.FormattingEnabled = true;
-            this.comboExcludeDirectories.Location = new System.Drawing.Point(9, 127);
+            this.comboExcludeDirectories.Location = new System.Drawing.Point(9, 101);
             this.comboExcludeDirectories.Name = "comboExcludeDirectories";
             this.comboExcludeDirectories.Size = new System.Drawing.Size(417, 21);
             this.comboExcludeDirectories.TabIndex = 5;
@@ -212,7 +212,7 @@ namespace FindInFiles
             // comboSearchExtensions
             // 
             this.comboSearchExtensions.FormattingEnabled = true;
-            this.comboSearchExtensions.Location = new System.Drawing.Point(9, 82);
+            this.comboSearchExtensions.Location = new System.Drawing.Point(9, 56);
             this.comboSearchExtensions.Name = "comboSearchExtensions";
             this.comboSearchExtensions.Size = new System.Drawing.Size(417, 21);
             this.comboSearchExtensions.TabIndex = 3;
@@ -232,7 +232,7 @@ namespace FindInFiles
             // checkUseRegex
             // 
             this.checkUseRegex.AutoSize = true;
-            this.checkUseRegex.Location = new System.Drawing.Point(9, 41);
+            this.checkUseRegex.Location = new System.Drawing.Point(97, 19);
             this.checkUseRegex.Name = "checkUseRegex";
             this.checkUseRegex.Size = new System.Drawing.Size(144, 17);
             this.checkUseRegex.TabIndex = 1;
@@ -337,9 +337,10 @@ namespace FindInFiles
             this.groupFindOptions.Controls.Add(this.labelFileTypes);
             this.groupFindOptions.Controls.Add(this.checkMatchCase);
             this.groupFindOptions.Controls.Add(this.checkUseRegex);
-            this.groupFindOptions.Location = new System.Drawing.Point(7, 95);
+            this.groupFindOptions.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupFindOptions.Location = new System.Drawing.Point(3, 95);
             this.groupFindOptions.Name = "groupFindOptions";
-            this.groupFindOptions.Size = new System.Drawing.Size(432, 155);
+            this.groupFindOptions.Size = new System.Drawing.Size(436, 171);
             this.groupFindOptions.TabIndex = 17;
             this.groupFindOptions.TabStop = false;
             this.groupFindOptions.Text = "Options";
@@ -347,7 +348,7 @@ namespace FindInFiles
             // labelExcludeDirectories
             // 
             this.labelExcludeDirectories.AutoSize = true;
-            this.labelExcludeDirectories.Location = new System.Drawing.Point(6, 110);
+            this.labelExcludeDirectories.Location = new System.Drawing.Point(6, 84);
             this.labelExcludeDirectories.Name = "labelExcludeDirectories";
             this.labelExcludeDirectories.Size = new System.Drawing.Size(128, 13);
             this.labelExcludeDirectories.TabIndex = 4;
@@ -356,7 +357,7 @@ namespace FindInFiles
             // labelFileTypes
             // 
             this.labelFileTypes.AutoSize = true;
-            this.labelFileTypes.Location = new System.Drawing.Point(6, 65);
+            this.labelFileTypes.Location = new System.Drawing.Point(6, 39);
             this.labelFileTypes.Name = "labelFileTypes";
             this.labelFileTypes.Size = new System.Drawing.Size(119, 13);
             this.labelFileTypes.TabIndex = 2;
@@ -486,7 +487,7 @@ namespace FindInFiles
             this.buttonGo.Name = "buttonGo";
             this.buttonGo.Size = new System.Drawing.Size(75, 23);
             this.buttonGo.TabIndex = 0;
-            this.buttonGo.Text = "Find All";
+            this.buttonGo.Text = "Find &All";
             this.buttonGo.UseVisualStyleBackColor = true;
             this.buttonGo.Click += new System.EventHandler(this.buttonGo_Click);
             // 
