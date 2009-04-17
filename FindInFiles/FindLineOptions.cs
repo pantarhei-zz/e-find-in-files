@@ -5,7 +5,7 @@ namespace FindInFiles
     /// <summary>
     /// Options for finding which lines match in a file (and optionally replacing them if the alternate constructor is used)
     /// </summary>
-    class FindLineOptions
+    public class FindLineOptions
     {
         public readonly string Pattern;
         public readonly bool MatchCase;

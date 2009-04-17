@@ -5,7 +5,7 @@ namespace FindInFiles
 	/// <summary>
 	/// Represents a single matching substring in a single line in a single file
 	/// </summary>
-	class Match
+	public class Match
 	{
 		public readonly string File;
 		public readonly int LineNumber;

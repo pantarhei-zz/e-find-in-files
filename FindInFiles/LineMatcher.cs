@@ -7,7 +7,7 @@ namespace FindInFiles
 	/// <summary>
 	/// Represents all the lines in a file which match the given options
 	/// </summary>
-	class LineMatcher
+	public class LineMatcher
 	{
 	    private readonly FindLineOptions options;
 
