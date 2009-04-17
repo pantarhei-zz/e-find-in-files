@@ -5,7 +5,7 @@ namespace FindInFiles
     /// <summary>
     /// Default implentation of range using an int
     /// </summary>
-    class IntRange
+    public class IntRange
     {
         public readonly int Lower, Upper;
 
