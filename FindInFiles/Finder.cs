@@ -11,11 +11,9 @@ namespace FindInFiles
         private readonly FindLineOptions FindLineOptions;
         private readonly FindFileOptions FindFileOptions;
 
-		public event ScanningFileCallback FileScanned;
+		public event Action<string> FileScanned;
 
-		public delegate void ScanningFileCallback(string text);
-
-		public Finder(FindFileOptions findFileOptions, FindLineOptions findLineOptions)
+        public Finder(FindFileOptions findFileOptions, FindLineOptions findLineOptions)
 		{
 			Debug.Assert(findFileOptions != null);
 			Debug.Assert(findLineOptions != null);
@@ -26,11 +24,12 @@ namespace FindInFiles
 
 		private void FireFileScanned(string text)
 		{
-			if (FileScanned != null)
-				FileScanned(text);
+		    var scanned = FileScanned;
+		    if (scanned != null)
+				scanned(text);
 		}
 
-		public void Find()
+        public void Find()
 		{
 		    var files = FileMatcher.Filter(FindFileOptions).AsCounted();
 		    var matches = LineMatcher.Filter(files, FindLineOptions).AsCounted();

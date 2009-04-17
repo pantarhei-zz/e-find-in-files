@@ -22,6 +22,7 @@ namespace FindInFiles
             this.startInReplaceMode = startInReplaceMode;
 
             InitializeComponent();
+            textProgress.Text = "";
 
             searchPathHistory = new ComboBoxHistory("textSearchPath", comboSearchPath);
             searchPatternHistory = new ComboBoxHistory("textSearchPattern", comboSearchPattern);
@@ -86,8 +87,33 @@ namespace FindInFiles
 
 	        SetButtonsEnabled(false);
 
+	        RunFinderAsync(fileOptions, lineOptions);
+	    }
+
+	    private void RunReplace()
+	    {
+	        SavePrefsToRegistry();
+
+	        var fileOptions = new FindFileOptions(
+	            comboSearchPath.Text,
+	            Util.ParseSearchExtensions(comboSearchExtensions.Text),
+	            Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
+
+	        var lineOptions = new FindLineOptions(
+	            SearchText,
+	            checkMatchCase.Checked,
+	            checkUseRegex.Checked,
+	            comboReplaceWith.Text);
+
+	        SetButtonsEnabled(false);
+
+            RunFinderAsync(fileOptions, lineOptions);
+        }
+
+	    private void RunFinderAsync(FindFileOptions fileOptions, FindLineOptions lineOptions)
+	    {
 	        var finder = new Finder( fileOptions, lineOptions );
-	        finder.FileScanned += ( text ) => SafeInvoke( () => SetProgressText( text ) );
+	        finder.FileScanned += OnFinderOnFileScanned;
 
 	        // Do the find in the background
 	        var b = new BackgroundWorker();
@@ -96,31 +122,9 @@ namespace FindInFiles
 	        b.RunWorkerAsync();
 	    }
 
-	    private void RunReplace()
+	    private void OnFinderOnFileScanned(string text)
 	    {
-	        SavePrefsToRegistry();
-
-	        var findFileOptions = new FindFileOptions(
-	            comboSearchPath.Text,
-	            Util.ParseSearchExtensions(comboSearchExtensions.Text),
-	            Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
-
-	        var findLineOptions = new FindLineOptions(
-	            SearchText,
-	            checkMatchCase.Checked,
-	            checkUseRegex.Checked,
-	            comboReplaceWith.Text);
-
-	        SetButtonsEnabled(false);
-
-	        var finder = new Finder(findFileOptions, findLineOptions);
-	        finder.FileScanned += (text) => SafeInvoke(() => SetProgressText(text));
-
-	        // Do the find in the background
-	        var b = new BackgroundWorker();
-	        b.DoWork += delegate { finder.Find(); };
-	        b.RunWorkerCompleted += delegate { SafeInvoke(WorkerFinished); };
-	        b.RunWorkerAsync();
+	        SafeInvoke(() => SetProgressText(text));
 	    }
 
 	    private void WorkerFinished()
@@ -239,16 +243,17 @@ namespace FindInFiles
 		    SelectWorkingFolder();
 		}
 
-	    private void SelectWorkingFolder()
-	    {
-	        var fd = new FolderBrowserDialog {
-	                                             ShowNewFolderButton = false,
-	                                             SelectedPath = comboSearchPath.Text
-	                                         };
+        private void SelectWorkingFolder()
+        {
+            var d = new FolderBrowserDialog
+                        {
+                            ShowNewFolderButton = false,
+                            SelectedPath = comboSearchPath.Text
+                        };
 
-	        if( fd.ShowDialog() == DialogResult.OK )
-	            comboSearchPath.Text = fd.SelectedPath;
-	    }
+            if (d.ShowDialog() == DialogResult.OK)
+                comboSearchPath.Text = d.SelectedPath;
+        }
 
 	    private void UseProjectDirectory_Click( object sender, EventArgs e )
 	    {
