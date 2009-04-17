@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FindInFiles
@@ -9,10 +10,10 @@ namespace FindInFiles
     class FindFileOptions
     {
         public readonly string Directory;
-        public readonly string[] FileExtensions;
-        public readonly string[] DirectoryExclusions;
+        public readonly ICollection<string> FileExtensions;
+        public readonly ICollection<string> DirectoryExclusions;
 
-        public FindFileOptions(string directory, string[] fileExtensions, string[] directoryExclusions)
+        public FindFileOptions(string directory, ICollection<string> fileExtensions, ICollection<string> directoryExclusions)
         {
             Debug.Assert(directory != null);
             Debug.Assert(fileExtensions != null);

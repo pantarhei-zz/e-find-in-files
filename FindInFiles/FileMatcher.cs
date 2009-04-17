@@ -47,34 +47,32 @@ namespace FindInFiles
             if (!Directory.Exists(options.Directory))
                 throw new ArgumentException("Directory does not exist");
 
-            Predicate<string> directoryFilter = (dir) => true;
-            if (options.DirectoryExclusions.Length >= 1)
-            {
-                directoryFilter = delegate(string dir)
-                                      {
-                                          return !options.DirectoryExclusions.Any(
-                                                      exclusion =>
-                                                      String.Compare(Path.GetFileName(dir), exclusion,
-                                                                     StringComparison.CurrentCultureIgnoreCase) == 0);
-                                      };
-            }
-
-            Predicate<string> fileFilter = (file) => true;
-            // check for *.* (*'s have been stripped out so it will just be a .)
-            if (options.FileExtensions.Length >= 1 && !options.FileExtensions.Any(ext => ext == "."))
-            {
-                fileFilter = delegate(string file)
-                                 {
-                                     return options.FileExtensions.Any(
-                                         ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
-                                 };
-            }
-
-            foreach (var file in FindFilesRecursive(options.Directory, fileFilter, directoryFilter))
+            foreach (var file in FindFilesRecursive(options.Directory, GetFileFilter(), GetDirectoryFilter()))
                 yield return file;
         }
 
-		public static IEnumerable<string> Filter( FindFileOptions options )
+	    private Predicate<string> GetFileFilter()
+	    {
+	        // check for *.* (*'s have been stripped out so it will just be a .)
+	        if (options.FileExtensions.Count == 0 || options.FileExtensions.Any(ext => ext == "."))
+	            return Util.AlwaysTrue;
+
+	        return file => options.FileExtensions.Any(
+	                           ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
+	    }
+
+	    private Predicate<string> GetDirectoryFilter()
+	    {
+            if (options.DirectoryExclusions.Count == 0)
+                return Util.AlwaysTrue;
+
+            return dir => !options.DirectoryExclusions.Any(
+                               exclusion =>
+                               String.Compare(Path.GetFileName(dir), exclusion,
+                                              StringComparison.CurrentCultureIgnoreCase) == 0);
+	    }
+
+	    public static IEnumerable<string> Filter( FindFileOptions options )
 		{
 		    var f = new FileMatcher(options);
             foreach (var o in f.Filter())

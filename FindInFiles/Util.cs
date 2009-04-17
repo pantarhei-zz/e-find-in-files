@@ -96,5 +96,10 @@ namespace FindInFiles
 
 	        return "..." + str.Substring(str.Length - (length - 3), (length - 3));
 	    }
+
+	    public static bool AlwaysTrue<T>(T s)
+	    {
+	        return true;
+	    }
 	}
 }
