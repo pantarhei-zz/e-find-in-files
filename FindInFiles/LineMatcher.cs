@@ -45,13 +45,5 @@ namespace FindInFiles
                     File.WriteAllLines(filename, lines);
             }
         }
-
-	    // worker function which scans all the files and matches all the lines
-        public static IEnumerable<Match> Filter(IEnumerable<string> files, FindLineOptions options)
-        {
-            var m = new LineMatcher(options);
-            foreach (var o in m.Filter(files))
-                yield return o;
-        }
 	}
 }

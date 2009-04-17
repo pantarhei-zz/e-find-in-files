@@ -11,18 +11,21 @@ namespace FindInFiles
     {
         private readonly FindFileOptions options;
 
-        private static IEnumerable<string> FindFilesRecursive(string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter)
+        private IEnumerable<string> FindFilesRecursive()
         {
-            Func<string, IEnumerable<string>> recurse = (s) => FindFilesRecursive(s, fileFilter, directoryFilter);
+            Predicate<string> fileFilter = GetFileFilter();
+            Predicate<string> directoryFilter = GetDirectoryFilter();
 
-            var files = from file in Directory.GetFiles(baseDirectory)
+            Func<string, IEnumerable<string>> recurse = arg => FindFilesRecursive();
+
+            var files = from file in Directory.GetFiles(options.Directory)
                         where fileFilter(file)
-                        select Path.Combine(baseDirectory, file);
+                        select Path.Combine(options.Directory, file);
 
-            var subfiles = from subdir in Directory.GetDirectories(baseDirectory)
-                           where directoryFilter(subdir)
-                           from file in recurse(Path.Combine(baseDirectory, subdir))
-                           select Path.Combine(Path.Combine(baseDirectory, subdir), file);
+            var subfiles = from dir in Directory.GetDirectories(options.Directory)
+                           where directoryFilter(dir)
+                           from file in recurse(Path.Combine(options.Directory, dir))
+                           select Path.Combine(Path.Combine(options.Directory, dir), file);
 
             foreach (var file in files.Concat(subfiles))
                 yield return file;
@@ -41,7 +44,7 @@ namespace FindInFiles
             if (!Directory.Exists(options.Directory))
                 throw new ArgumentException("Directory does not exist");
 
-            foreach (var file in FindFilesRecursive(options.Directory, GetFileFilter(), GetDirectoryFilter()))
+            foreach (var file in FindFilesRecursive())
                 yield return file;
         }
 
@@ -64,13 +67,6 @@ namespace FindInFiles
                                exclusion =>
                                String.Compare(Path.GetFileName(dir), exclusion,
                                               StringComparison.CurrentCultureIgnoreCase) == 0);
-        }
-
-        public static IEnumerable<string> Filter(FindFileOptions options)
-        {
-            var f = new FileMatcher(options);
-            foreach (var o in f.Filter())
-                yield return o;
         }
     }
 }

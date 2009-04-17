@@ -27,8 +27,8 @@ namespace FindInFiles
 
         public void Find()
         {
-            var files = FileMatcher.Filter(fileOptions).AsCounted();
-            var matches = LineMatcher.Filter(files, lineOptions).AsCounted();
+            var files = new FileMatcher(fileOptions).Filter().AsCounted();
+            var matches = new LineMatcher(lineOptions).Filter(files).AsCounted();
 
             IOutputMatches h = new HtmlOutputter(lineOptions.Pattern, fileOptions.Directory, files, matches);
             h.OutputHeader();
