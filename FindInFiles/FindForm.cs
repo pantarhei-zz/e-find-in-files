@@ -74,8 +74,9 @@ namespace FindInFiles
 	    private void RunFind()
 	    {
 	        SavePrefsToRegistry();
+            SetButtonsEnabled(false);
 
-	        var fileOptions = new FindFileOptions(
+            var fileOptions = new FindFileOptions(
 	            comboSearchPath.Text,
 	            Util.ParseSearchExtensions(comboSearchExtensions.Text),
 	            Util.ParseDirectoryExcludes(comboExcludeDirectories.Text) );
@@ -85,14 +86,13 @@ namespace FindInFiles
 	            checkMatchCase.Checked,
 	            checkUseRegex.Checked );
 
-	        SetButtonsEnabled(false);
-
 	        RunFinderAsync(fileOptions, lineOptions);
 	    }
 
 	    private void RunReplace()
 	    {
 	        SavePrefsToRegistry();
+            SetButtonsEnabled(false);
 
 	        var fileOptions = new FindFileOptions(
 	            comboSearchPath.Text,
@@ -104,8 +104,6 @@ namespace FindInFiles
 	            checkMatchCase.Checked,
 	            checkUseRegex.Checked,
 	            comboReplaceWith.Text);
-
-	        SetButtonsEnabled(false);
 
             RunFinderAsync(fileOptions, lineOptions);
         }

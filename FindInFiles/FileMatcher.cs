@@ -47,26 +47,28 @@ namespace FindInFiles
             if (!Directory.Exists(options.Directory))
                 throw new ArgumentException("Directory does not exist");
 
-            // build filter predicates
-            Predicate<string> fileFilter = (file) => true;
             Predicate<string> directoryFilter = (dir) => true;
-
             if (options.DirectoryExclusions.Length >= 1)
+            {
                 directoryFilter = delegate(string dir)
-                {
-                    return !options.DirectoryExclusions.Any(
-                                exclusion =>
-                                String.Compare(Path.GetFileName(dir), exclusion,
-                                               StringComparison.CurrentCultureIgnoreCase) == 0);
-                };
+                                      {
+                                          return !options.DirectoryExclusions.Any(
+                                                      exclusion =>
+                                                      String.Compare(Path.GetFileName(dir), exclusion,
+                                                                     StringComparison.CurrentCultureIgnoreCase) == 0);
+                                      };
+            }
 
+            Predicate<string> fileFilter = (file) => true;
             // check for *.* (*'s have been stripped out so it will just be a .)
             if (options.FileExtensions.Length >= 1 && !options.FileExtensions.Any(ext => ext == "."))
+            {
                 fileFilter = delegate(string file)
-                {
-                    return options.FileExtensions.Any(
-                        ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
-                };
+                                 {
+                                     return options.FileExtensions.Any(
+                                         ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
+                                 };
+            }
 
             foreach (var file in FindFilesRecursive(options.Directory, fileFilter, directoryFilter))
                 yield return file;
