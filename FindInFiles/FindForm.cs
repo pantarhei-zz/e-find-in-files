@@ -2,18 +2,13 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Security.Permissions;
-using JetBrains.Annotations;
 using Microsoft.Win32;
-using System.Diagnostics;
 
 namespace FindInFiles
 {
 	public partial class FindForm : Form
 	{
-		private const int FIND_HEIGHT = 336;
-		private const int REPLACE_HEIGHT = 356;
-
-		private readonly ComboBoxHistory SearchPathHistory;
+	    private readonly ComboBoxHistory SearchPathHistory;
 		private readonly ComboBoxHistory SearchPatternHistory;
 		private readonly ComboBoxHistory ReplaceWithHistory;
 		private readonly ComboBoxHistory SearchExtensionsHistory;
@@ -35,10 +30,9 @@ namespace FindInFiles
 			ExcludeDirectoriesHistory = new ComboBoxHistory( "textDirectoryExcludes", comboExcludeDirectories );
 		}
 
-	    private void SetProgressText([NotNull] string txt )
+	    private void SetProgressText(string progress_message)
 		{
-			Debug.Assert( txt != null );
-			textProgress.Text = Util.TrimLeadingText(txt, 40);
+			textProgress.Text = Util.TrimLeadingText(progress_message ?? "", 40);
 		}
 
 	    private void SafeInvoke( Action fn )
@@ -54,8 +48,7 @@ namespace FindInFiles
 
 	    private void SetButtonsEnabled(bool value)
 	    {
-	        buttonFind.Enabled = value;
-	        buttonReplace.Enabled = value;
+	        buttonGo.Enabled = value;
 	    }
 
 	    private string SearchText
@@ -69,9 +62,8 @@ namespace FindInFiles
 			get { return comboReplaceWith.Text; }
 		}
 
-		private void OnButtonFind_Click( object sender, EventArgs e )
-		{
-		    // if the user presses the enter key, this fires even though the tab is wrong
+	    private void buttonGo_Click(object sender, EventArgs e)
+	    {
 		    if (tabControl.SelectedTab == replaceTab)
 		        RunReplace();
 		    else
@@ -104,11 +96,6 @@ namespace FindInFiles
 	        b.RunWorkerAsync();
 	    }
 
-	    private void OnButtonReplace_Click( object sender, EventArgs e )
-	    {
-	        RunReplace();
-	    }
-
 	    private void RunReplace()
 	    {
 	        SavePrefsToRegistry();
@@ -138,7 +125,7 @@ namespace FindInFiles
 
 	    private void WorkerFinished()
         {
-            OnParamsChanged();
+            ParamsChanged();
             SetButtonsEnabled(true);
             SetProgressText("");
             Close();
@@ -164,11 +151,9 @@ namespace FindInFiles
             LoadSelectedText();
             LoadDefaults();
 
-            OnParamsChanged();
+            ParamsChanged();
 
             tabControl.SelectedTab = StartInReplaceMode ? replaceTab : findTab;
-
-            UpdateFormHeightForSelectedTab();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -178,14 +163,14 @@ namespace FindInFiles
                 SavePrefsToRegistry();
         }
 
-		private void OnParamsChanged()
+		private void ParamsChanged()
 		{
 			SetButtonsEnabled(IsValid());
 		}
 
 		private bool IsValid()
 		{
-			return comboSearchPath.Text.Length > 0 && SearchText.Length > 0;
+			return comboSearchPath.Text.Length > 0 && comboSearchPattern.Text.Length > 0;
 		}
 
 		private static RegistryKey OpenOrCreate( RegistryKey parent, string subKeyName )
@@ -348,24 +333,14 @@ namespace FindInFiles
             comboSearchPattern.Focus();
         }
 
-		private void OnTabChanged( object sender, EventArgs e )
-		{
-		    UpdateFormHeightForSelectedTab();
-		}
+        private void comboSearchPattern_TextChanged(object sender, EventArgs e)
+        {
+            ParamsChanged();
+        }
 
-	    private void UpdateFormHeightForSelectedTab()
-	    {
-	        if( tabControl.SelectedTab == replaceTab )
-	        {
-	            Height = REPLACE_HEIGHT;
-	            tabControl.Height = REPLACE_HEIGHT - 25;
-	            replaceTab.Height = 305;
-	        }
-	        else
-	        {
-	            Height = FIND_HEIGHT;
-	            tabControl.Height = FIND_HEIGHT - 25;
-	        }
-	    }
+        private void comboSearchPath_TextChanged(object sender, EventArgs e)
+        {
+            ParamsChanged();
+        }
 	}
 }
