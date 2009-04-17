@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 
 namespace FindInFiles
 {
@@ -13,21 +12,14 @@ namespace FindInFiles
         public readonly bool UseRegex;
         public readonly string Replacement;
 
-        public FindLineOptions(string pattern, bool matchCase, bool useRegex)
-        {
-            Debug.Assert(pattern != null);
+        public FindLineOptions(string pattern, bool matchCase, bool useRegex) :
+            this(pattern, matchCase, useRegex, null) {}
 
+        public FindLineOptions(string pattern, bool matchCase, bool useRegex, string replacement)
+        {
             Pattern = pattern;
             MatchCase = matchCase;
             UseRegex = useRegex;
-            Replacement = null;
-        }
-
-        public FindLineOptions( string pattern, bool matchCase, bool useRegex, string replacement )
-            : this(pattern, matchCase, useRegex)
-        {
-            Debug.Assert( replacement != null );
-
             Replacement = replacement;
         }
 
