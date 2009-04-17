@@ -6,7 +6,7 @@ namespace FindInFiles
     /// <summary>
     /// Options for finding which files match on the file system
     /// </summary>
-    class FindFileOptions
+    public class FindFileOptions
     {
         public readonly string Directory;
         public readonly ICollection<string> FileExtensions;

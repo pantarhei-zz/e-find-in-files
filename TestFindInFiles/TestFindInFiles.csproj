@@ -47,12 +47,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFileMatcher.cs" />
     <Compile Include="TestTextScanner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="testfiles\files1\TextFile1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testfiles\files1\TextFile2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testfiles\files1\TextFile3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="testfiles\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

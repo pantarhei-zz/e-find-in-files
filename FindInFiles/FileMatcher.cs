@@ -7,7 +7,7 @@ namespace FindInFiles
     /// <summary>
     /// Represents all the files which match the given options
     /// </summary>
-    class FileMatcher
+    public class FileMatcher
     {
         private readonly FindFileOptions options;
 
