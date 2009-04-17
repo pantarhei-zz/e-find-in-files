@@ -2,12 +2,10 @@ using System;
 
 namespace FindInFiles
 {
-    /// <summary>
-    /// Default implentation of range using an int
-    /// </summary>
     public class IntRange
     {
-        public readonly int Lower, Upper;
+        public readonly int Lower;
+        public readonly int Upper;
 
         public IntRange(int lower, int upper)
         {
