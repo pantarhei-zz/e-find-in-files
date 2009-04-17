@@ -4,29 +4,29 @@ using System.IO;
 
 namespace FindInFiles
 {
-	/// <summary>
-	/// Represents all the files which match the given options
-	/// </summary>
-	class FileMatcher
-	{
-	    private readonly FindFileOptions options;
+    /// <summary>
+    /// Represents all the files which match the given options
+    /// </summary>
+    class FileMatcher
+    {
+        private readonly FindFileOptions options;
 
-	    private static IEnumerable<string> FindFilesRecursive( string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter )
-		{
-			Func<string, IEnumerable<string>> recurse = ( s ) => FindFilesRecursive( s, fileFilter, directoryFilter );
+        private static IEnumerable<string> FindFilesRecursive(string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter)
+        {
+            Func<string, IEnumerable<string>> recurse = (s) => FindFilesRecursive(s, fileFilter, directoryFilter);
 
-			var files = from file in Directory.GetFiles( baseDirectory )
-						where fileFilter( file )
-						select Path.Combine( baseDirectory, file );
+            var files = from file in Directory.GetFiles(baseDirectory)
+                        where fileFilter(file)
+                        select Path.Combine(baseDirectory, file);
 
-			var subfiles = from subdir in Directory.GetDirectories( baseDirectory )
-						   where directoryFilter( subdir )
-						   from file in recurse( Path.Combine( baseDirectory, subdir ) )
-						   select Path.Combine( Path.Combine( baseDirectory, subdir ), file );
+            var subfiles = from subdir in Directory.GetDirectories(baseDirectory)
+                           where directoryFilter(subdir)
+                           from file in recurse(Path.Combine(baseDirectory, subdir))
+                           select Path.Combine(Path.Combine(baseDirectory, subdir), file);
 
-			foreach( var file in files.Concat(subfiles) )
-				yield return file;
-		}
+            foreach (var file in files.Concat(subfiles))
+                yield return file;
+        }
 
         public FileMatcher(FindFileOptions options)
         {
@@ -45,18 +45,18 @@ namespace FindInFiles
                 yield return file;
         }
 
-	    private Predicate<string> GetFileFilter()
-	    {
-	        // check for *.* (*'s have been stripped out so it will just be a .)
-	        if (options.FileExtensions.Count == 0 || options.FileExtensions.Any(ext => ext == "."))
-	            return Util.AlwaysTrue;
+        private Predicate<string> GetFileFilter()
+        {
+            // check for *.* (*'s have been stripped out so it will just be a .)
+            if (options.FileExtensions.Count == 0 || options.FileExtensions.Any(ext => ext == "."))
+                return Util.AlwaysTrue;
 
-	        return file => options.FileExtensions.Any(
-	                           ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
-	    }
+            return file => options.FileExtensions.Any(
+                               ext => file.EndsWith(ext, StringComparison.CurrentCultureIgnoreCase));
+        }
 
-	    private Predicate<string> GetDirectoryFilter()
-	    {
+        private Predicate<string> GetDirectoryFilter()
+        {
             if (options.DirectoryExclusions.Count == 0)
                 return Util.AlwaysTrue;
 
@@ -64,13 +64,13 @@ namespace FindInFiles
                                exclusion =>
                                String.Compare(Path.GetFileName(dir), exclusion,
                                               StringComparison.CurrentCultureIgnoreCase) == 0);
-	    }
+        }
 
-	    public static IEnumerable<string> Filter( FindFileOptions options )
-		{
-		    var f = new FileMatcher(options);
+        public static IEnumerable<string> Filter(FindFileOptions options)
+        {
+            var f = new FileMatcher(options);
             foreach (var o in f.Filter())
                 yield return o;
-		}
-	}
+        }
+    }
 }
