@@ -62,6 +62,14 @@ namespace FindInFiles
             return path == null ? "" : ConvertCygpath(CleanPath(path));
         }
 
+        private static string StripAny(this string input, IEnumerable<char> chars)
+        {
+            string output = input;
+            foreach (var c in chars)
+                output.Replace(c.ToString(), "");
+            return output;
+        }
+
         /// <summary>
         /// Converts a single line of user-input search extensions into an array of sanitized extensions
         /// </summary>
@@ -69,7 +77,7 @@ namespace FindInFiles
         /// <returns>Split and cleaned file extensions</returns>
         public static IList<string> ParseSearchExtensions(string e)
         {
-            return e.Replace("*", "").Replace(" ", "").Split(new[] { ',', ';' });
+            return e.StripAny("* ").Split(new[] { ',', ';' });
         }
 
         /// <summary>
