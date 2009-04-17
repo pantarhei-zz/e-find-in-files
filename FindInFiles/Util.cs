@@ -8,15 +8,10 @@ namespace FindInFiles
 {
 	public static class Util
 	{
-	    public static string F( this string formatString, params object[] args )
-		{
-			return String.Format( formatString, args );
-		}
-
-		/// <summary>Removes invalid characters from a path</summary>
+	    /// <summary>Removes invalid characters from a path</summary>
 		/// <param name="path">The input path</param>
 		/// <returns>The input path, with all characters from Path.GetInvalidPathChars() stripped out</returns>
-		public static string CleanPath( string path )
+		private static string CleanPath( string path )
 		{
 			foreach( char c in Path.GetInvalidPathChars() )
 				path = path.Replace( c.ToString(), "" );
@@ -32,7 +27,7 @@ namespace FindInFiles
 		/// <returns>If the path does not contain the / character, it is simply returned.
 		/// If it does, then cygpath is invoked, and the value returned from cygpath is returned.
 		/// If an error occurs invoking cygpath, then the error is swallowed and the input path is simply returned.</returns>
-		public static string ConvertCygpath( string path )
+		private static string ConvertCygpath( string path )
 		{
 			if( !path.Contains( "/" ) )
 				return path;
@@ -48,8 +43,10 @@ namespace FindInFiles
 			{
 				return CleanPath( Process.Start( startInfo ).StandardOutput.ReadToEnd() );
 			}
-			catch( Win32Exception ) // file not found - can't find cygpath.exe. Don't care about being more specific with our error
-			{ }
+			catch( Win32Exception )
+			{
+                // file not found - can't find cygpath.exe. Don't care about being more specific with our error
+			}
 			return path;
 		}
 
