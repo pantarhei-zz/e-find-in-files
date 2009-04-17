@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Diagnostics;
@@ -66,7 +67,7 @@ namespace FindInFiles
         /// </summary>
         /// <param name="e">The user input file extensions</param>
         /// <returns>Split and cleaned file extensions</returns>
-        public static string[] ParseSearchExtensions(string e)
+        public static IList<string> ParseSearchExtensions(string e)
         {
             return e.Replace("*", "").Replace(" ", "").Split(new[] { ',', ';' });
         }
@@ -76,7 +77,7 @@ namespace FindInFiles
         /// </summary>
         /// <param name="e">The user input directory exclusions</param>
         /// <returns>Split and cleaned directory exclusions</returns>
-        public static string[] ParseDirectoryExcludes(string e)
+        public static IList<string> SplitDirectoryExcludes(string e)
         {
             return e.Split(new[] { ',', ';' });
         }

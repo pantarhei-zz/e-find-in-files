@@ -79,7 +79,7 @@ namespace FindInFiles
             var fileOptions = new FindFileOptions(
                 comboSearchPath.Text,
                 Util.ParseSearchExtensions(comboSearchExtensions.Text),
-                Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
+                Util.SplitDirectoryExcludes(comboExcludeDirectories.Text));
 
             var lineOptions = new FindLineOptions(
                 SearchText,
@@ -97,7 +97,7 @@ namespace FindInFiles
             var fileOptions = new FindFileOptions(
                 comboSearchPath.Text,
                 Util.ParseSearchExtensions(comboSearchExtensions.Text),
-                Util.ParseDirectoryExcludes(comboExcludeDirectories.Text));
+                Util.SplitDirectoryExcludes(comboExcludeDirectories.Text));
 
             var lineOptions = new FindLineOptions(
                 SearchText,
