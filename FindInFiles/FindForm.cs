@@ -8,27 +8,27 @@ namespace FindInFiles
 {
 	public partial class FindForm : Form
 	{
-	    private readonly ComboBoxHistory SearchPathHistory;
-		private readonly ComboBoxHistory SearchPatternHistory;
-		private readonly ComboBoxHistory ReplaceWithHistory;
-		private readonly ComboBoxHistory SearchExtensionsHistory;
-		private readonly ComboBoxHistory ExcludeDirectoriesHistory;
+	    private readonly ComboBoxHistory searchPathHistory;
+		private readonly ComboBoxHistory searchPatternHistory;
+		private readonly ComboBoxHistory replaceWithHistory;
+		private readonly ComboBoxHistory searchExtensionsHistory;
+		private readonly ComboBoxHistory excludeDirectoriesHistory;
 
-		private readonly bool StartInReplaceMode;
+		private readonly bool startInReplaceMode;
 
 
-		public FindForm( bool startInReplaceMode )
-		{
-			StartInReplaceMode = startInReplaceMode;
+        public FindForm(bool startInReplaceMode)
+        {
+            this.startInReplaceMode = startInReplaceMode;
 
-			InitializeComponent();
+            InitializeComponent();
 
-			SearchPathHistory         = new ComboBoxHistory( "textSearchPath", comboSearchPath );
-			SearchPatternHistory      = new ComboBoxHistory( "textSearchPattern", comboSearchPattern );
-			ReplaceWithHistory        = new ComboBoxHistory( "textReplaceWith", comboReplaceWith );
-			SearchExtensionsHistory   = new ComboBoxHistory( "textSearchExtensions", comboSearchExtensions );
-			ExcludeDirectoriesHistory = new ComboBoxHistory( "textDirectoryExcludes", comboExcludeDirectories );
-		}
+            searchPathHistory = new ComboBoxHistory("textSearchPath", comboSearchPath);
+            searchPatternHistory = new ComboBoxHistory("textSearchPattern", comboSearchPattern);
+            replaceWithHistory = new ComboBoxHistory("textReplaceWith", comboReplaceWith);
+            searchExtensionsHistory = new ComboBoxHistory("textSearchExtensions", comboSearchExtensions);
+            excludeDirectoriesHistory = new ComboBoxHistory("textDirectoryExcludes", comboExcludeDirectories);
+        }
 
 	    private void SetProgressText(string progress_message)
 		{
@@ -153,7 +153,7 @@ namespace FindInFiles
 
             ParamsChanged();
 
-            tabControl.SelectedTab = StartInReplaceMode ? replaceTab : findTab;
+            tabControl.SelectedTab = startInReplaceMode ? replaceTab : findTab;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -190,10 +190,10 @@ namespace FindInFiles
 		{
 			using( var prefsKey = OpenPrefsRegistryKey() )
 			{
-				SearchPathHistory.Load( prefsKey );
-				SearchPatternHistory.Load( prefsKey );
-				SearchExtensionsHistory.Load( prefsKey );
-				ExcludeDirectoriesHistory.Load( prefsKey );
+				searchPathHistory.Load( prefsKey );
+				searchPatternHistory.Load( prefsKey );
+				searchExtensionsHistory.Load( prefsKey );
+				excludeDirectoriesHistory.Load( prefsKey );
 
 				object tmp = prefsKey.GetValue( "checkUseRegex" );
 				checkUseRegex.Checked = (tmp is int && (int)tmp == 1);
@@ -213,19 +213,19 @@ namespace FindInFiles
 
 		private void SavePrefsToRegistry()
 		{
-			SearchPathHistory.Grab();
-			ReplaceWithHistory.Grab();
-			SearchPatternHistory.Grab();
-			SearchExtensionsHistory.Grab();
-			ExcludeDirectoriesHistory.Grab();
+			searchPathHistory.Grab();
+			replaceWithHistory.Grab();
+			searchPatternHistory.Grab();
+			searchExtensionsHistory.Grab();
+			excludeDirectoriesHistory.Grab();
 
 			using( RegistryKey prefsKey = OpenPrefsRegistryKey() )
 			{
-				SearchPathHistory.Save( prefsKey );
-				ReplaceWithHistory.Save( prefsKey );
-				SearchPatternHistory.Save( prefsKey );
-				SearchExtensionsHistory.Save( prefsKey );
-				ExcludeDirectoriesHistory.Save( prefsKey );
+				searchPathHistory.Save( prefsKey );
+				replaceWithHistory.Save( prefsKey );
+				searchPatternHistory.Save( prefsKey );
+				searchExtensionsHistory.Save( prefsKey );
+				excludeDirectoriesHistory.Save( prefsKey );
 
 				prefsKey.SetValue( "checkUseRegex", checkUseRegex.Checked ? 1 : 0 );
 				prefsKey.SetValue( "checkMatchCase", checkMatchCase.Checked ? 1 : 0 );
