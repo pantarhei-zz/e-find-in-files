@@ -36,8 +36,8 @@ namespace FindInFiles
 
 				lastIndex = r.Upper;
 			}
-			b.Append( line.Substring( lastIndex ) ); //stick the trailing bit on
 
+			b.Append( line.Substring( lastIndex ) ); //stick the trailing bit on
 			return b.ToString();
 		}
 
@@ -73,8 +73,8 @@ namespace FindInFiles
         public void OutputMatch( Match match )
 		{
 			Console.WriteLine( 
-				"<a href=\"txmt://open/?url=file://{0}&amp;line={1}\">{2}({1}): {3}</a>",
-				match.File,
+				"<a href=\"{0}\">{2}({1}): {3}</a>",
+				Util.MakeTxmtUrl(match.File, match.LineNumber),
 				match.LineNumber,
 				MakeShortPath( directory, match.File ),
 				EscapedHighlight(match.LineText, new[]{ match.Characters })

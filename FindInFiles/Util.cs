@@ -101,5 +101,10 @@ namespace FindInFiles
 	    {
 	        return true;
 	    }
+
+	    public static string MakeTxmtUrl(string filename, int lineNumber)
+	    {
+	        return String.Format("txmt://open/?url=file://{0}&amp;line={1}", filename, lineNumber);
+	    }
 	}
 }
