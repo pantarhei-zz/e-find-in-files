@@ -4,25 +4,28 @@ using System.Text;
 
 namespace FindInFiles
 {
-    class TextScanner : IStringScanner
+    public class TextScanner : IStringScanner
     {
-        private readonly string Pattern;
-        private readonly string Replacement;
-        private readonly StringComparison ComparisonType;
+        private readonly string pattern;
+        private readonly string replacement;
+        private readonly StringComparison comparisonType;
+
+        public TextScanner(string pattern, bool matchCase)
+            : this(pattern, null, matchCase) {}
 
         public TextScanner(string pattern, string replacement, bool matchCase)
         {
-            Pattern = pattern;
-            Replacement = replacement;
-            ComparisonType = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+            this.pattern = pattern;
+            this.replacement = replacement;
+            comparisonType = matchCase ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
         }
 
         public IEnumerable<IntRange> Scan(string text)
         {
             int startIndex = 0;
 			
-            while ((startIndex = text.IndexOf(Pattern, startIndex, ComparisonType)) != -1)
-                yield return new IntRange(startIndex, startIndex += Pattern.Length);
+            while ((startIndex = text.IndexOf(pattern, startIndex, comparisonType)) != -1)
+                yield return new IntRange(startIndex, startIndex += pattern.Length);
         }
 
         public IEnumerable<IntRange> ScanAndReplace(string text, Action<string> replaceCallback)
@@ -31,13 +34,13 @@ namespace FindInFiles
 
             int lastIndex = 0, nextIndex = 0;
 
-            while ((nextIndex = text.IndexOf(Pattern, nextIndex, ComparisonType)) != -1)
+            while ((nextIndex = text.IndexOf(pattern, nextIndex, comparisonType)) != -1)
             {
                 sb.Append(text.Substring(lastIndex, nextIndex-lastIndex));
-                sb.Append(Replacement);
+                sb.Append(replacement);
 
-                yield return new IntRange(nextIndex, nextIndex + Replacement.Length);
-                nextIndex += Pattern.Length;
+                yield return new IntRange(nextIndex, nextIndex + replacement.Length);
+                nextIndex += pattern.Length;
                 lastIndex = nextIndex;
             }
 

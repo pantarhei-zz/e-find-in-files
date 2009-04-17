@@ -40,10 +40,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\xunit-1.1\xunit.dll</HintPath>
     </Reference>
+    <Reference Include="xunit.extensions, Version=1.1.0.1323, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\xunit-1.1\xunit.extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestTextScanner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -52,6 +57,12 @@
     <Content Include="testfiles\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FindInFiles\FindInFiles.csproj">
+      <Project>{71760719-225D-48F6-9E7C-07AD2743786B}</Project>
+      <Name>FindInFiles</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
