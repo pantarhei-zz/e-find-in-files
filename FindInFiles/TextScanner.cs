@@ -30,9 +30,13 @@ namespace FindInFiles
 
         public IEnumerable<IntRange> ScanAndReplace(string text, Action<string> replaceCallback)
         {
+            if (replacement == null)
+                throw new InvalidOperationException("Cannot scan and replace when the replacement text is null.");
+
             StringBuilder sb = new StringBuilder();
 
-            int lastIndex = 0, nextIndex = 0;
+            int lastIndex = 0;
+            int nextIndex = 0;
 
             while ((nextIndex = text.IndexOf(pattern, nextIndex, comparisonType)) != -1)
             {
