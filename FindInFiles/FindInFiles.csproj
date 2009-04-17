@@ -53,6 +53,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CountedEnumerable.cs" />
+    <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="FileMatcher.cs" />
     <Compile Include="FindFileOptions.cs" />
     <Compile Include="FindLineOptions.cs" />

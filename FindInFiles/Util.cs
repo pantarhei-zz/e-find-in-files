@@ -4,12 +4,6 @@ using System.IO;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-// Extensions
-namespace System.Runtime.CompilerServices
-{
-	sealed class ExtensionAttribute : Attribute { }
-}
-
 namespace FindInFiles
 {
 	public static class Util
