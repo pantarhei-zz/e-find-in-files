@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace FindInFiles
@@ -14,9 +13,6 @@ namespace FindInFiles
 
 	    private static IEnumerable<string> FindFilesRecursive( string baseDirectory, Predicate<string> fileFilter, Predicate<string> directoryFilter )
 		{
-			Debug.Assert( baseDirectory != null );
-			Debug.Assert( directoryFilter != null );
-
 			Func<string, IEnumerable<string>> recurse = ( s ) => FindFilesRecursive( s, fileFilter, directoryFilter );
 
 			var files = from file in Directory.GetFiles( baseDirectory )
@@ -34,8 +30,6 @@ namespace FindInFiles
 
         public FileMatcher(FindFileOptions options)
         {
-            Debug.Assert(options != null);
-
             if (options.Directory.Length < 1)
                 throw new ArgumentException("Directory cannot be empty", options.Directory);
 

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Diagnostics;
 
 namespace FindInFiles
 {
@@ -26,9 +25,6 @@ namespace FindInFiles
 		/// <returns>A hilighted copy</returns>
 		private static string EscapedHighlight(string line, IEnumerable<IntRange> ranges)
 		{
-			Debug.Assert(line != null);
-			Debug.Assert(ranges != null);
-
 			var b = new StringBuilder();
 			int lastIndex = 0;
 			foreach (var r in ranges)
@@ -61,11 +57,6 @@ namespace FindInFiles
 		public HtmlOutputter( string pattern, string directory, ICountedEnumerable<string> files, ICountedEnumerable<Match> matches )
 		{
 			startTime = DateTime.Now;
-
-			Debug.Assert( pattern != null );
-			Debug.Assert( directory != null );
-			Debug.Assert( files != null );
-			Debug.Assert( matches != null );
 
 			this.pattern = pattern;
 			this.directory = directory;

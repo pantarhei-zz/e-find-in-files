@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+using System;
 
 namespace FindInFiles
 {
@@ -15,11 +14,6 @@ namespace FindInFiles
 
 		public Match(string file, int lineNumber, string lineText, IntRange characters)
 		{
-			Debug.Assert(file != null);
-			Debug.Assert(lineNumber != 0);
-			Debug.Assert(lineText != null);
-			Debug.Assert(characters != null);
-
 			File = file;
 			LineNumber = lineNumber;
 			LineText = lineText;

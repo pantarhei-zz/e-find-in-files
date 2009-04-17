@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -25,9 +24,6 @@ namespace FindInFiles
         /// </summary>
         public ComboBoxHistory(string key, ComboBox box)
         {
-            Debug.Assert(key != null);
-            Debug.Assert(box != null);
-
             this.key = key;
             combobox = box;
         }
