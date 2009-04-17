@@ -6,17 +6,17 @@ namespace FindInFiles
 {
     class RegexScanner : IStringScanner
     {
-        private readonly Regex Regex;
-        private readonly string Replacement;
+        private readonly Regex regex;
+        private readonly string replacement;
 
         public RegexScanner(string pattern, string replacement, bool matchCase)
         {
-            var regexOptions = RegexOptions.Compiled;
+            RegexOptions regexOptions = RegexOptions.Compiled;
             if (!matchCase)
                 regexOptions |= RegexOptions.IgnoreCase;
 
-            Regex = new Regex(pattern, regexOptions);
-            Replacement = replacement;
+            regex = new Regex(pattern, regexOptions);
+            this.replacement = replacement;
         }
 
         public IEnumerable<IntRange> Scan(string text)
