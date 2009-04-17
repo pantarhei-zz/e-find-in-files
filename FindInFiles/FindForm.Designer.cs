@@ -522,45 +522,43 @@ namespace FindInFiles
 
         #endregion
 
-		private System.Windows.Forms.TabControl tabControl;
-		private System.Windows.Forms.TabPage findTab;
-		private System.Windows.Forms.Button buttonUseCurrentWord;
-		private System.Windows.Forms.Button buttonUseCurrentDirectory;
-		private System.Windows.Forms.Button buttonUseProjectDir;
-		private Controls.LinkedComboBox comboSearchPattern;
-		private Controls.LinkedComboBox comboSearchPath;
-		private System.Windows.Forms.Button buttonBrowse;
-		private System.Windows.Forms.Label textProgress;
-		private System.Windows.Forms.GroupBox groupFindOptions;
-		private Controls.LinkedComboBox comboExcludeDirectories;
-		private Controls.LinkedComboBox comboSearchExtensions;
-		private System.Windows.Forms.Label labelExcludeDirectories;
-		private System.Windows.Forms.Label labelFileTypes;
-		private Controls.LinkedCheckBox checkMatchCase;
-		private Controls.LinkedCheckBox checkUseRegex;
-		private System.Windows.Forms.Label labelLookIn;
+        private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.TabPage findTab;
+        private System.Windows.Forms.Button buttonUseCurrentWord;
+        private System.Windows.Forms.Button buttonUseCurrentDirectory;
+        private System.Windows.Forms.Button buttonUseProjectDir;
+        private Controls.LinkedComboBox comboSearchPattern;
+        private Controls.LinkedComboBox comboSearchPath;
+        private System.Windows.Forms.Button buttonBrowse;
+        private System.Windows.Forms.Label textProgress;
+        private System.Windows.Forms.GroupBox groupFindOptions;
+        private Controls.LinkedComboBox comboExcludeDirectories;
+        private Controls.LinkedComboBox comboSearchExtensions;
+        private System.Windows.Forms.Label labelExcludeDirectories;
+        private System.Windows.Forms.Label labelFileTypes;
+        private Controls.LinkedCheckBox checkMatchCase;
+        private Controls.LinkedCheckBox checkUseRegex;
+        private System.Windows.Forms.Label labelLookIn;
         private System.Windows.Forms.Label labelFindWhat;
-		private System.Windows.Forms.TabPage replaceTab;
-		private System.Windows.Forms.Button buttonReplaceUseCurrentWord;
-		private System.Windows.Forms.Button buttonReplaceUseCurrentDirectory;
-		private System.Windows.Forms.Button buttonReplaceUseProjectDir;
-		private Controls.LinkedComboBox textReplaceSearchPattern;
-		private Controls.LinkedComboBox textReplaceSearchPath;
+        private System.Windows.Forms.TabPage replaceTab;
+        private System.Windows.Forms.Button buttonReplaceUseCurrentWord;
+        private System.Windows.Forms.Button buttonReplaceUseCurrentDirectory;
+        private System.Windows.Forms.Button buttonReplaceUseProjectDir;
+        private Controls.LinkedComboBox textReplaceSearchPattern;
+        private Controls.LinkedComboBox textReplaceSearchPath;
         private System.Windows.Forms.Button buttonReplaceBrowse;
-		private System.Windows.Forms.GroupBox groupReplaceOptions;
-		private Controls.LinkedComboBox textReplaceDirectoryExcludes;
-		private Controls.LinkedComboBox textReplaceSearchExtensions;
-		private System.Windows.Forms.Label labelReplaceExcludeDirectories;
-		private System.Windows.Forms.Label labelReplaceFileTypes;
-		private Controls.LinkedCheckBox checkReplaceMatchCase;
-		private Controls.LinkedCheckBox checkReplaceUseRegex;
-		private System.Windows.Forms.Label labelReplaceLookIn;
+        private System.Windows.Forms.GroupBox groupReplaceOptions;
+        private Controls.LinkedComboBox textReplaceDirectoryExcludes;
+        private Controls.LinkedComboBox textReplaceSearchExtensions;
+        private System.Windows.Forms.Label labelReplaceExcludeDirectories;
+        private System.Windows.Forms.Label labelReplaceFileTypes;
+        private Controls.LinkedCheckBox checkReplaceMatchCase;
+        private Controls.LinkedCheckBox checkReplaceUseRegex;
+        private System.Windows.Forms.Label labelReplaceLookIn;
         private System.Windows.Forms.Label labelReplaceFindWhat;
-		private System.Windows.Forms.ComboBox comboReplaceWith; // NOT LINKED
-		private System.Windows.Forms.Label labelReplaceWith;
+        private System.Windows.Forms.ComboBox comboReplaceWith;
+        private System.Windows.Forms.Label labelReplaceWith;
         private System.Windows.Forms.Panel panelFixedControls;
         private System.Windows.Forms.Button buttonGo;
-
-	}
+    }
 }
-

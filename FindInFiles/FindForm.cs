@@ -310,13 +310,13 @@ namespace FindInFiles
 
         private void LoadDefaults()
         {
-            if (SearchText.Length < 1 || textReplaceSearchPattern.Text.Length < 1)
+            if (SearchText == "" || textReplaceSearchPattern.Text == "")
                 UseSelectedWord(false);
 
-            if (comboSearchPath.Text.Length < 1 || textReplaceSearchPath.Text.Length < 1)
+            if (comboSearchPath.Text == "" || textReplaceSearchPath.Text == "")
                 UseProjectFolder(false);
 
-            if (comboSearchExtensions.Text.Length < 1 || textReplaceSearchExtensions.Text.Length < 1)
+            if (comboSearchExtensions.Text == "" || textReplaceSearchExtensions.Text == "")
                 comboSearchExtensions.Text = "*.*";
         }
 
