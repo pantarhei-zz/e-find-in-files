@@ -5,3 +5,4 @@ obj
 *resharper*
 *.user
 *.cache
+*.Cache
